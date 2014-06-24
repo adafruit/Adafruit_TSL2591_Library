@@ -48,7 +48,7 @@ void setup(void)
   // Now we're ready to get readings!
 }
 
-void loop(void) 
+void simpleRead(void)
 {
   // Simple data read example. Just read the infrared, fullspecrtrum diode 
   // or 'visible' (difference between the two) channels.
@@ -56,20 +56,32 @@ void loop(void)
   uint16_t x = tsl.getLuminosity(TSL2591_VISIBLE);
   //uint16_t x = tsl.getLuminosity(TSL2561_FULLSPECTRUM);
   //uint16_t x = tsl.getLuminosity(TSL2561_INFRARED);
-  
-  Serial.println(x, DEC);
 
+  Serial.print("[ "); Serial.print(millis()); Serial.print(" ms ] ");
+  Serial.print("Luminosity: ");
+  Serial.println(x, DEC);
+}
+
+void advancedRead(void)
+{
   // More advanced data read example. Read 32 bits with top 16 bits IR, bottom 16 bits full spectrum
-  // That way you can do whatever math and comparions you want!
+  // That way you can do whatever math and comparisons you want!
   uint32_t lum = tsl.getFullLuminosity();
   uint16_t ir, full;
   ir = lum >> 16;
   full = lum & 0xFFFF;
-  Serial.print("IR: "); Serial.print(ir);   Serial.print("\t\t");
-  Serial.print("Full: "); Serial.print(full);   Serial.print("\t");
-  Serial.print("Visible: "); Serial.print(full - ir);   Serial.print("\t");
-  
-  Serial.print("Lux: "); Serial.println(tsl.calculateLux(full, ir));
-  
+  Serial.print("[ "); Serial.print(millis()); Serial.print(" ms ] ");
+  Serial.print("IR: "); Serial.print(ir);  Serial.print("  ");
+  Serial.print("Full: "); Serial.print(full); Serial.print("  ");
+  Serial.print("Visible: "); Serial.print(full - ir); Serial.println("  ");
+
+  // ToDo: Calculate Lux  
+  // Serial.print("Lux: "); Serial.println(tsl.calculateLux(full, ir));
+}
+
+void loop(void) 
+{
+  simpleRead();
+  advancedRead();  
   delay(100); 
 }
