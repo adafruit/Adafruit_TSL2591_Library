@@ -1,6 +1,6 @@
 /**************************************************************************/
 /*! 
-    @file     tsl2591.c
+    @file     Adafruit_TSL2591.cpp
     @author   K. Townsend (adafruit.com)
 
     @section LICENSE

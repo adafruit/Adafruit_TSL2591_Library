@@ -1,14 +1,13 @@
-
 /**************************************************************************/
 /*! 
-    @file     Adafruit_tsl2591.h
-    @author   K. Townsend (microBuilder.eu)
+    @file     Adafruit_TSL2591.h
+    @author   K. Townsend (adafruit.com)
 
     @section LICENSE
 
     Software License Agreement (BSD License)
 
-    Copyright (c) 2010, microBuilder SARL
+    Copyright (c) 2014 Adafruit Industries
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
