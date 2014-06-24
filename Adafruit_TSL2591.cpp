@@ -1,14 +1,13 @@
-
 /**************************************************************************/
 /*! 
-    @file     tsl251.c
-    @author   K. Townsend (microBuilder.eu / adafruit.com)
+    @file     tsl2591.c
+    @author   K. Townsend (adafruit.com)
 
     @section LICENSE
 
     Software License Agreement (BSD License)
 
-    Copyright (c) 2010, microBuilder SARL, Adafruit Industries
+    Copyright (c) 2014 Adafruit Industries
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -34,45 +33,51 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 /**************************************************************************/
-
 #include <avr/pgmspace.h>
 #include <util/delay.h>
 #include <stdlib.h>
 
 #include "Adafruit_TSL2591.h"
 
-Adafruit_TSL2591::Adafruit_TSL2591() {
+Adafruit_TSL2591::Adafruit_TSL2591() 
+{
   _initialized = false;
   _integration = TSL2591_INTEGRATIONTIME_100MS;
-  _gain = TSL2591_GAIN_MED;
+  _gain        = TSL2591_GAIN_MED;
 
   // we cant do wire initialization till later, because we havent loaded Wire yet
 }
 
-boolean Adafruit_TSL2591::begin(void) {
+boolean Adafruit_TSL2591::begin(void) 
+{
   Wire.begin();
 
-  for (uint8_t i=0; i<0x20; i++) {
-  uint8_t id = read8(0x12);
-  Serial.print("$"); Serial.print(i, HEX); 
-  Serial.print(" = 0x"); Serial.println(read8(i), HEX);
-
-
-
+  /*
+  for (uint8_t i=0; i<0x20; i++) 
+  {
+    uint8_t id = read8(0x12);
+    Serial.print("$"); Serial.print(i, HEX); 
+    Serial.print(" = 0x"); Serial.println(read8(i), HEX);
   }
+  */
 
   uint8_t id = read8(0x12);
   Serial.print("id = 0x"); Serial.println(id, HEX);
-  if (id == 0x50 ) {
+  if (id == 0x50 ) 
+  {
     //Serial.println("Found Adafruit_TSL2591");
-  } else {
+  } 
+  else 
+  {
     return false;
   }
+  
   _initialized = true;
 
   // Set default integration time and gain
   setTiming(_integration);
   setGain(_gain);
+  
   // Note: by default, the device is in power down mode on bootup
   disable();
 
@@ -81,7 +86,13 @@ boolean Adafruit_TSL2591::begin(void) {
 
 void Adafruit_TSL2591::enable(void)
 {
-  if (!_initialized) begin();
+  if (!_initialized)
+  {
+    if (!begin())
+    {
+      return;
+    }
+  }
 
   // Enable the device by setting the control bit to 0x01
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE, TSL2591_ENABLE_POWERON | TSL2591_ENABLE_AEN | TSL2591_ENABLE_AIEN);
@@ -89,15 +100,27 @@ void Adafruit_TSL2591::enable(void)
 
 void Adafruit_TSL2591::disable(void)
 {
-  if (!_initialized) begin();
+  if (!_initialized)
+  {
+    if (!begin())
+    {
+      return;
+    }
+  }
 
   // Disable the device by setting the control bit to 0x00
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE, TSL2591_ENABLE_POWEROFF);
 }
 
-
-void Adafruit_TSL2591::setGain(tsl2591Gain_t gain) {
-  if (!_initialized) begin();
+void Adafruit_TSL2591::setGain(tsl2591Gain_t gain) 
+{
+  if (!_initialized)
+  {
+    if (!begin())
+    {
+      return;
+    }
+  }
 
   enable();
   _gain = gain;
@@ -107,7 +130,13 @@ void Adafruit_TSL2591::setGain(tsl2591Gain_t gain) {
 
 void Adafruit_TSL2591::setTiming(tsl2591IntegrationTime_t integration)
 {
-  if (!_initialized) begin();
+  if (!_initialized)
+  {
+    if (!begin())
+    {
+      return;
+    }
+  }
 
   enable();
   _integration = integration;
@@ -204,14 +233,21 @@ uint32_t Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
 
 uint32_t Adafruit_TSL2591::getFullLuminosity (void)
 {
-  if (!_initialized) begin();
+  if (!_initialized)
+  {
+    if (!begin())
+    {
+      return 0;
+    }
+  }
 
   // Enable the device
   enable();
 
   // Wait x ms for ADC to complete
-  for (uint8_t d=0; d<=_integration; d++) {
-    delay(110);
+  for (uint8_t d=0; d<=_integration; d++) 
+  {
+    delay(100);
   }
 
   uint32_t x;
@@ -223,17 +259,23 @@ uint32_t Adafruit_TSL2591::getFullLuminosity (void)
 
   return x;
 }
-uint16_t Adafruit_TSL2591::getLuminosity (uint8_t channel) {
 
+uint16_t Adafruit_TSL2591::getLuminosity (uint8_t channel) 
+{
   uint32_t x = getFullLuminosity();
 
-  if (channel == 0) {
+  if (channel == TSL2591_FULLSPECTRUM) 
+  {
     // Reads two byte value from channel 0 (visible + infrared)
     return (x & 0xFFFF);
-  } else if (channel == 1) {
+  } 
+  else if (channel == TSL2591_INFRARED) 
+  {
     // Reads two byte value from channel 1 (infrared)
     return (x >> 16);
-  } else if (channel == 2) {
+  } 
+  else if (channel == TSL2591_VISIBLE) 
+  {
     // Reads all and subtracts out just the visible!
     return ( (x & 0xFFFF) - (x >> 16));
   }
@@ -241,7 +283,6 @@ uint16_t Adafruit_TSL2591::getLuminosity (uint8_t channel) {
   // unknown channel!
   return 0;
 }
-
 
 uint8_t Adafruit_TSL2591::read8(uint8_t reg)
 {
@@ -252,14 +293,12 @@ uint8_t Adafruit_TSL2591::read8(uint8_t reg)
   Wire.requestFrom(TSL2591_ADDR, 1);
   while (! Wire.available());
   return Wire.read();
-
-
 }
-
 
 uint16_t Adafruit_TSL2591::read16(uint8_t reg)
 {
-  uint16_t x; uint16_t t;
+  uint16_t x; 
+  uint16_t t;
 
   Wire.beginTransmission(TSL2591_ADDR);
 #if ARDUINO >= 100
@@ -281,8 +320,6 @@ uint16_t Adafruit_TSL2591::read16(uint8_t reg)
   x |= t;
   return x;
 }
-
-
 
 void Adafruit_TSL2591::write8 (uint8_t reg, uint8_t value)
 {

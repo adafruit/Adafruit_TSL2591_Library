@@ -1,3 +1,7 @@
+/* TSL25911 Digital Light Sensor */
+/* Dynamic Range: 600M:1 */
+/* Maximum Lux: 88K */
+
 #include <Wire.h>
 #include "Adafruit_TSL2591.h"
 
@@ -10,34 +14,46 @@
 
 Adafruit_TSL2591 tsl = Adafruit_TSL2591(); 
 
-void setup(void) {
+void setup(void) 
+{
   Serial.begin(9600);
   
-  if (tsl.begin()) {
-    Serial.println("Found sensor");
-  } else {
-    Serial.println("No sensor?");
+  Serial.println("Starting");
+  
+  if (tsl.begin()) 
+  {
+    Serial.println("Found a TSL2591 sensor");
+  } 
+  else 
+  {
+    Serial.println("No sensor found ... check your wiring?");
     while (1);
   }
     
   // You can change the gain on the fly, to adapt to brighter/dimmer light situations
-  //tsl.setGain(TSL2561_GAIN_0X);         // set no gain (for bright situtations)
-  tsl.setGain(TSL2591_GAIN_MED);      // set 16x gain (for dim situations)
+  //tsl.setGain(TSL2591_GAIN_LOW);
+  tsl.setGain(TSL2591_GAIN_MED);
+  //tsl.setGain(TSL2591_GAIN_HIGH);
+  //tsl.setGain(TSL2591_GAIN_MAX);
   
   // Changing the integration time gives you a longer time over which to sense light
   // longer timelines are slower, but are good in very low light situtations!
   tsl.setTiming(TSL2591_INTEGRATIONTIME_100MS);  // shortest integration time (bright light)
-  //tsl.setTiming(TSL2561_INTEGRATIONTIME_101MS);  // medium integration time (medium light)
-  //tsl.setTiming(TSL2561_INTEGRATIONTIME_402MS);  // longest integration time (dim light)
+  //tsl.setTiming(TSL2591_INTEGRATIONTIME_200MS);
+  //tsl.setTiming(TSL2591_INTEGRATIONTIME_300MS);
+  //tsl.setTiming(TSL2591_INTEGRATIONTIME_400MS);
+  //tsl.setTiming(TSL2591_INTEGRATIONTIME_500MS);
+  //tsl.setTiming(TSL2591_INTEGRATIONTIME_600MS);  // longest integration time (dim light)
   
   // Now we're ready to get readings!
 }
 
-void loop(void) {
+void loop(void) 
+{
   // Simple data read example. Just read the infrared, fullspecrtrum diode 
   // or 'visible' (difference between the two) channels.
-  // This can take 13-402 milliseconds! Uncomment whichever of the following you want to read
-  uint16_t x = tsl.getLuminosity(TSL2591_VISIBLE);     
+  // This can take 100-600 milliseconds! Uncomment whichever of the following you want to read
+  uint16_t x = tsl.getLuminosity(TSL2591_VISIBLE);
   //uint16_t x = tsl.getLuminosity(TSL2561_FULLSPECTRUM);
   //uint16_t x = tsl.getLuminosity(TSL2561_INFRARED);
   
