@@ -3,6 +3,7 @@
 /* Maximum Lux: 88K */
 
 #include <Wire.h>
+#include <Adafruit_Sensor.h>
 #include "Adafruit_TSL2591.h"
 
 // Example for demonstrating the TSL2591 library - public domain!
@@ -12,8 +13,65 @@
 // connect VDD to 3.3V DC
 // connect GROUND to common ground
 
-Adafruit_TSL2591 tsl = Adafruit_TSL2591(); 
+Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591);
 
+/**************************************************************************/
+/*
+    Displays some basic information on this sensor from the unified
+    sensor API sensor_t type (see Adafruit_Sensor for more information)
+*/
+/**************************************************************************/
+void displaySensorDetails(void)
+{
+  sensor_t sensor;
+  tsl.getSensor(&sensor);
+  Serial.println("------------------------------------");
+  Serial.print  ("Sensor:       "); Serial.println(sensor.name);
+  Serial.print  ("Driver Ver:   "); Serial.println(sensor.version);
+  Serial.print  ("Unique ID:    "); Serial.println(sensor.sensor_id);
+  Serial.print  ("Max Value:    "); Serial.print(sensor.max_value); Serial.println(" lux");
+  Serial.print  ("Min Value:    "); Serial.print(sensor.min_value); Serial.println(" lux");
+  Serial.print  ("Resolution:   "); Serial.print(sensor.resolution); Serial.println(" lux");  
+  Serial.println("------------------------------------");
+  Serial.println("");
+  delay(500);
+}
+
+/**************************************************************************/
+/*
+    Configures the gain and integration time for the TSL2561
+*/
+/**************************************************************************/
+void configureSensor(void)
+{
+  // You can change the gain on the fly, to adapt to brighter/dimmer light situations
+  //tsl.setGain(TSL2591_GAIN_LOW);    // 1x gain (bright light)
+  tsl.setGain(TSL2591_GAIN_MED);      // 25x gain
+  //tsl.setGain(TSL2591_GAIN_HIGH);   // 428x gain
+  //tsl.setGain(TSL2591_GAIN_MAX);    // 9876x gain (dim light)
+  
+  // Changing the integration time gives you a longer time over which to sense light
+  // longer timelines are slower, but are good in very low light situtations!
+  tsl.setTiming(TSL2591_INTEGRATIONTIME_100MS);  // shortest integration time (bright light)
+  //tsl.setTiming(TSL2591_INTEGRATIONTIME_200MS);
+  //tsl.setTiming(TSL2591_INTEGRATIONTIME_300MS);
+  //tsl.setTiming(TSL2591_INTEGRATIONTIME_400MS);
+  //tsl.setTiming(TSL2591_INTEGRATIONTIME_500MS);
+  //tsl.setTiming(TSL2591_INTEGRATIONTIME_600MS);  // longest integration time (dim light)
+
+  /* Update these values depending on what you've set above! */  
+  Serial.println("------------------------------------");
+  Serial.print  ("Gain:         "); Serial.println("Medium (25x)");
+  Serial.print  ("Timing:       "); Serial.println("100 ms");
+  Serial.println("------------------------------------");
+  Serial.println("");
+}
+
+/**************************************************************************/
+/*
+    Program entry point for the Arduino sketch
+*/
+/**************************************************************************/
 void setup(void) 
 {
   Serial.begin(9600);
@@ -30,24 +88,21 @@ void setup(void)
     while (1);
   }
     
-  // You can change the gain on the fly, to adapt to brighter/dimmer light situations
-  //tsl.setGain(TSL2591_GAIN_LOW);    // 1x gain (bright light)
-  tsl.setGain(TSL2591_GAIN_MED);      // 25x gain
-  //tsl.setGain(TSL2591_GAIN_HIGH);   // 428x gain
-  //tsl.setGain(TSL2591_GAIN_MAX);    // 9876x gain (dim light)
+  /* Display some basic information on this sensor */
+  displaySensorDetails();
   
-  // Changing the integration time gives you a longer time over which to sense light
-  // longer timelines are slower, but are good in very low light situtations!
-  tsl.setTiming(TSL2591_INTEGRATIONTIME_100MS);  // shortest integration time (bright light)
-  //tsl.setTiming(TSL2591_INTEGRATIONTIME_200MS);
-  //tsl.setTiming(TSL2591_INTEGRATIONTIME_300MS);
-  //tsl.setTiming(TSL2591_INTEGRATIONTIME_400MS);
-  //tsl.setTiming(TSL2591_INTEGRATIONTIME_500MS);
-  //tsl.setTiming(TSL2591_INTEGRATIONTIME_600MS);  // longest integration time (dim light)
-  
-  // Now we're ready to get readings!
+  /* Configure the sensor */
+  configureSensor();
+    
+  // Now we're ready to get readings ... move on to loop()!
 }
 
+/**************************************************************************/
+/*
+    Shows how to perform a basic read on visible, full spectrum or
+    infrared light (returns raw 16-bit ADC values)
+*/
+/**************************************************************************/
 void simpleRead(void)
 {
   // Simple data read example. Just read the infrared, fullspecrtrum diode 
@@ -62,6 +117,11 @@ void simpleRead(void)
   Serial.println(x, DEC);
 }
 
+/**************************************************************************/
+/*
+    Show how to read IR and Full Spectrum at once and convert to lux
+*/
+/**************************************************************************/
 void advancedRead(void)
 {
   // More advanced data read example. Read 32 bits with top 16 bits IR, bottom 16 bits full spectrum
@@ -77,9 +137,42 @@ void advancedRead(void)
   Serial.print("Lux: "); Serial.println(tsl.calculateLux(full, ir));
 }
 
-void loop(void) 
+/**************************************************************************/
+/*
+    Performs a read using the Adafruit Unified Sensor API.
+*/
+/**************************************************************************/
+void unifiedSensorAPIRead(void)
 {
-  simpleRead();
-  advancedRead();  
-  delay(100); 
+  /* Get a new sensor event */ 
+  sensors_event_t event;
+  tsl.getEvent(&event);
+ 
+  /* Display the results (light is measured in lux) */
+  if (event.light)
+  {
+    Serial.print("[ "); Serial.print(event.timestamp); Serial.print(" ms ] ");
+    Serial.print(event.light); Serial.println(" lux");
+  }
+  else
+  {
+    /* If event.light = 0 lux the sensor is probably saturated
+       and no reliable data could be generated! */
+    Serial.println("Sensor overload");
+  }
+}
+
+/**************************************************************************/
+/*
+    Arduino loop function, called once 'setup' is complete (your own code
+    should go here)
+*/
+/**************************************************************************/
+void loop(void) 
+{ 
+  // simpleRead(); 
+  // advancedRead();
+  unifiedSensorAPIRead();
+  
+  delay(250);
 }

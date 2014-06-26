@@ -50,11 +50,12 @@
 
 #include "Adafruit_TSL2591.h"
 
-Adafruit_TSL2591::Adafruit_TSL2591() 
+Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID) 
 {
   _initialized = false;
   _integration = TSL2591_INTEGRATIONTIME_100MS;
   _gain        = TSL2591_GAIN_MED;
+  _sensorID    = sensorID;
 
   // we cant do wire initialization till later, because we havent loaded Wire yet
 }
@@ -322,4 +323,50 @@ void Adafruit_TSL2591::write8 (uint8_t reg, uint8_t value)
   Wire.send(value);
 #endif
   Wire.endTransmission();
+}
+
+/**************************************************************************/
+/*!
+    @brief  Gets the most recent sensor event
+*/
+/**************************************************************************/
+void Adafruit_TSL2591::getEvent(sensors_event_t *event)
+{
+  uint16_t ir, full;
+  uint32_t lum = getFullLuminosity();
+  ir = lum >> 16;
+  full = lum & 0xFFFF;  
+  
+  /* Clear the event */
+  memset(event, 0, sizeof(sensors_event_t));
+  
+  event->version   = sizeof(sensors_event_t);
+  event->sensor_id = _sensorID;
+  event->type      = SENSOR_TYPE_LIGHT;
+  event->timestamp = millis();
+
+  /* Calculate the actual lux value */
+  event->light = calculateLux(full, ir);
+}
+
+/**************************************************************************/
+/*!
+    @brief  Gets the sensor_t data
+*/
+/**************************************************************************/
+void Adafruit_TSL2591::getSensor(sensor_t *sensor)
+{
+  /* Clear the sensor_t object */
+  memset(sensor, 0, sizeof(sensor_t));
+
+  /* Insert the sensor name in the fixed length char array */
+  strncpy (sensor->name, "TSL2591", sizeof(sensor->name) - 1);
+  sensor->name[sizeof(sensor->name)- 1] = 0;
+  sensor->version     = 1;
+  sensor->sensor_id   = _sensorID;
+  sensor->type        = SENSOR_TYPE_LIGHT;
+  sensor->min_delay   = 0;
+  sensor->max_value   = 88000.0;
+  sensor->min_value   = 0.0;
+  sensor->resolution  = 1.0;
 }
