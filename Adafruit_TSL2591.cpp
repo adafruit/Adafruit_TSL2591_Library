@@ -1,7 +1,18 @@
 /**************************************************************************/
 /*! 
     @file     Adafruit_TSL2591.cpp
-    @author   K. Townsend (adafruit.com)
+    @author   KT0WN (adafruit.com)
+
+	  This is a library for the Adafruit TSL2591 breakout board
+	  This library works with the Adafruit TSL2591 breakout 
+	  ----> https://www.adafruit.com/products/
+	
+	  Check out the links above for our tutorials and wiring diagrams 
+  	These chips use I2C to communicate
+	
+  	Adafruit invests time and resources providing this open source code, 
+  	please support Adafruit and open-source hardware by purchasing 
+  	products from Adafruit!
 
     @section LICENSE
 
@@ -146,89 +157,68 @@ void Adafruit_TSL2591::setTiming(tsl2591IntegrationTime_t integration)
 
 uint32_t Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
 {
-  unsigned long chScale;
-  unsigned long channel1;
-  unsigned long channel0;
+  uint16_t atime, again;
+  float    cpl, lux1, lux2, lux;
+  uint32_t chan0, chan1;
 
+  // Note: This algorithm is based on preliminary coefficients
+  // provided by AMS and may need to be updated in the future
+  
   switch (_integration)
   {
     case TSL2591_INTEGRATIONTIME_100MS :
-      chScale = TSL2591_LUX_CHSCALE_TINT0;
+      atime = 100.0F;
       break;
     case TSL2591_INTEGRATIONTIME_200MS :
-      chScale = TSL2591_LUX_CHSCALE_TINT1;
+      atime = 200.0F;
       break;
-    default: // No scaling ... integration time = 402ms
-      chScale = (1 << TSL2591_LUX_CHSCALE);
+    case TSL2591_INTEGRATIONTIME_300MS :
+      atime = 300.0F;
+      break;
+    case TSL2591_INTEGRATIONTIME_400MS :
+      atime = 400.0F;
+      break;
+    case TSL2591_INTEGRATIONTIME_500MS :
+      atime = 500.0F;
+      break;
+    case TSL2591_INTEGRATIONTIME_600MS :
+      atime = 600.0F;
+      break;
+    default: // 100ms
+      atime = 100.0F;
+      break;
+  }
+  
+  switch (_gain)
+  {
+    case TSL2591_GAIN_LOW :
+      again = 1.0F;
+      break;
+    case TSL2591_GAIN_MED :
+      again = 25.0F;
+      break;
+    case TSL2591_GAIN_HIGH :
+      again = 428.0F;
+      break;
+    case TSL2591_GAIN_MAX :
+      again = 9876.0F;
+      break;
+    default:
+      again = 1.0F;
       break;
   }
 
-  // Scale for gain (1x or 16x)
-  if (!_gain) chScale = chScale << 4;
-
-  // scale the channel values
-  channel0 = (ch0 * chScale) >> TSL2591_LUX_CHSCALE;
-  channel1 = (ch1 * chScale) >> TSL2591_LUX_CHSCALE;
-
-  // find the ratio of the channel values (Channel1/Channel0)
-  unsigned long ratio1 = 0;
-  if (channel0 != 0) ratio1 = (channel1 << (TSL2591_LUX_RATIOSCALE+1)) / channel0;
-
-  // round the ratio value
-  unsigned long ratio = (ratio1 + 1) >> 1;
-
-  unsigned int b, m;
-
-#ifdef TSL2591_PACKAGE_CS
-  if ((ratio >= 0) && (ratio <= TSL2591_LUX_K1C))
-    {b=TSL2591_LUX_B1C; m=TSL2591_LUX_M1C;}
-  else if (ratio <= TSL2591_LUX_K2C)
-    {b=TSL2591_LUX_B2C; m=TSL2591_LUX_M2C;}
-  else if (ratio <= TSL2591_LUX_K3C)
-    {b=TSL2591_LUX_B3C; m=TSL2591_LUX_M3C;}
-  else if (ratio <= TSL2591_LUX_K4C)
-    {b=TSL2591_LUX_B4C; m=TSL2591_LUX_M4C;}
-  else if (ratio <= TSL2591_LUX_K5C)
-    {b=TSL2591_LUX_B5C; m=TSL2591_LUX_M5C;}
-  else if (ratio <= TSL2591_LUX_K6C)
-    {b=TSL2591_LUX_B6C; m=TSL2591_LUX_M6C;}
-  else if (ratio <= TSL2591_LUX_K7C)
-    {b=TSL2591_LUX_B7C; m=TSL2591_LUX_M7C;}
-  else if (ratio > TSL2591_LUX_K8C)
-    {b=TSL2591_LUX_B8C; m=TSL2591_LUX_M8C;}
-#else
-  if ((ratio >= 0) && (ratio <= TSL2591_LUX_K1T))
-    {b=TSL2591_LUX_B1T; m=TSL2591_LUX_M1T;}
-  else if (ratio <= TSL2591_LUX_K2T)
-    {b=TSL2591_LUX_B2T; m=TSL2591_LUX_M2T;}
-  else if (ratio <= TSL2591_LUX_K3T)
-    {b=TSL2591_LUX_B3T; m=TSL2591_LUX_M3T;}
-  else if (ratio <= TSL2591_LUX_K4T)
-    {b=TSL2591_LUX_B4T; m=TSL2591_LUX_M4T;}
-  else if (ratio <= TSL2591_LUX_K5T)
-    {b=TSL2591_LUX_B5T; m=TSL2591_LUX_M5T;}
-  else if (ratio <= TSL2591_LUX_K6T)
-    {b=TSL2591_LUX_B6T; m=TSL2591_LUX_M6T;}
-  else if (ratio <= TSL2591_LUX_K7T)
-    {b=TSL2591_LUX_B7T; m=TSL2591_LUX_M7T;}
-  else if (ratio > TSL2591_LUX_K8T)
-    {b=TSL2591_LUX_B8T; m=TSL2591_LUX_M8T;}
-#endif
-
-  unsigned long temp;
-  temp = ((channel0 * b) - (channel1 * m));
-
-  // do not allow negative lux value
-  if (temp < 0) temp = 0;
-
-  // round lsb (2^(LUX_SCALE-1))
-  temp += (1 << (TSL2591_LUX_LUXSCALE-1));
-
-  // strip off fractional portion
-  uint32_t lux = temp >> TSL2591_LUX_LUXSCALE;
+  // cpl = (ATIME * AGAIN) / DF
+  cpl = (atime * again) / TSL2591_LUX_DF;
+  
+  lux1 = ( (float)ch0 - (TSL2591_LUX_COEFB * (float)ch1) ) / cpl;
+  lux2 = ( ( TSL2591_LUX_COEFC * (float)ch0 ) - ( TSL2591_LUX_COEFD * (float)ch1 ) ) / cpl;
+  
+  // The highest value is the approximate lux equivalent
+  lux = lux1 > lux2 ? lux1 : lux2;
 
   // Signal I2C had no errors
-  return lux;
+  return (uint32_t)lux;
 }
 
 uint32_t Adafruit_TSL2591::getFullLuminosity (void)
@@ -247,7 +237,7 @@ uint32_t Adafruit_TSL2591::getFullLuminosity (void)
   // Wait x ms for ADC to complete
   for (uint8_t d=0; d<=_integration; d++) 
   {
-    delay(100);
+    delay(110);
   }
 
   uint32_t x;

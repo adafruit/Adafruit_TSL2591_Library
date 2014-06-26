@@ -31,10 +31,10 @@ void setup(void)
   }
     
   // You can change the gain on the fly, to adapt to brighter/dimmer light situations
-  //tsl.setGain(TSL2591_GAIN_LOW);
-  tsl.setGain(TSL2591_GAIN_MED);
-  //tsl.setGain(TSL2591_GAIN_HIGH);
-  //tsl.setGain(TSL2591_GAIN_MAX);
+  //tsl.setGain(TSL2591_GAIN_LOW);    // 1x gain (bright light)
+  tsl.setGain(TSL2591_GAIN_MED);      // 25x gain
+  //tsl.setGain(TSL2591_GAIN_HIGH);   // 428x gain
+  //tsl.setGain(TSL2591_GAIN_MAX);    // 9876x gain (dim light)
   
   // Changing the integration time gives you a longer time over which to sense light
   // longer timelines are slower, but are good in very low light situtations!
@@ -73,10 +73,8 @@ void advancedRead(void)
   Serial.print("[ "); Serial.print(millis()); Serial.print(" ms ] ");
   Serial.print("IR: "); Serial.print(ir);  Serial.print("  ");
   Serial.print("Full: "); Serial.print(full); Serial.print("  ");
-  Serial.print("Visible: "); Serial.print(full - ir); Serial.println("  ");
-
-  // ToDo: Calculate Lux  
-  // Serial.print("Lux: "); Serial.println(tsl.calculateLux(full, ir));
+  Serial.print("Visible: "); Serial.print(full - ir); Serial.print("  ");
+  Serial.print("Lux: "); Serial.println(tsl.calculateLux(full, ir));
 }
 
 void loop(void) 

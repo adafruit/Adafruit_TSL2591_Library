@@ -1,7 +1,18 @@
 /**************************************************************************/
 /*! 
     @file     Adafruit_TSL2591.h
-    @author   K. Townsend (adafruit.com)
+    @author   KT0WN (adafruit.com)
+
+	  This is a library for the Adafruit TSL2591 breakout board
+	  This library works with the Adafruit TSL2591 breakout 
+	  ----> https://www.adafruit.com/products/
+	
+	  Check out the links above for our tutorials and wiring diagrams 
+  	These chips use I2C to communicate
+	
+  	Adafruit invests time and resources providing this open source code, 
+  	please support Adafruit and open-source hardware by purchasing 
+  	products from Adafruit!
 
     @section LICENSE
 
@@ -49,11 +60,6 @@
 #define TSL2591_FULLSPECTRUM      (0)       // channel 0
 
 #define TSL2591_ADDR              (0x29)
-
-// Lux calculations differ slightly for CS package
-//#define TSL2591_PACKAGE_CS
-#define TSL2591_PACKAGE_T_FN_CL
-
 #define TSL2591_READBIT           (0x01)
 
 #define TSL2591_COMMAND_BIT       (0xA0)    // bits 7 and 5 for 'command normal'
@@ -68,64 +74,10 @@
 
 #define TSL2591_CONTROL_RESET     (0x80)
 
-
-#define TSL2591_LUX_LUXSCALE      (14)      // Scale by 2^14
-#define TSL2591_LUX_RATIOSCALE    (9)       // Scale ratio by 2^9
-#define TSL2591_LUX_CHSCALE       (10)      // Scale channel values by 2^10
-#define TSL2591_LUX_CHSCALE_TINT0 (0x7517)  // 322/11 * 2^TSL2591_LUX_CHSCALE
-#define TSL2591_LUX_CHSCALE_TINT1 (0x0FE7)  // 322/81 * 2^TSL2591_LUX_CHSCALE
-
-// T, FN and CL package values
-#define TSL2591_LUX_K1T           (0x0040)  // 0.125 * 2^RATIO_SCALE
-#define TSL2591_LUX_B1T           (0x01f2)  // 0.0304 * 2^LUX_SCALE
-#define TSL2591_LUX_M1T           (0x01be)  // 0.0272 * 2^LUX_SCALE
-#define TSL2591_LUX_K2T           (0x0080)  // 0.250 * 2^RATIO_SCALE
-#define TSL2591_LUX_B2T           (0x0214)  // 0.0325 * 2^LUX_SCALE
-#define TSL2591_LUX_M2T           (0x02d1)  // 0.0440 * 2^LUX_SCALE
-#define TSL2591_LUX_K3T           (0x00c0)  // 0.375 * 2^RATIO_SCALE
-#define TSL2591_LUX_B3T           (0x023f)  // 0.0351 * 2^LUX_SCALE
-#define TSL2591_LUX_M3T           (0x037b)  // 0.0544 * 2^LUX_SCALE
-#define TSL2591_LUX_K4T           (0x0100)  // 0.50 * 2^RATIO_SCALE
-#define TSL2591_LUX_B4T           (0x0270)  // 0.0381 * 2^LUX_SCALE
-#define TSL2591_LUX_M4T           (0x03fe)  // 0.0624 * 2^LUX_SCALE
-#define TSL2591_LUX_K5T           (0x0138)  // 0.61 * 2^RATIO_SCALE
-#define TSL2591_LUX_B5T           (0x016f)  // 0.0224 * 2^LUX_SCALE
-#define TSL2591_LUX_M5T           (0x01fc)  // 0.0310 * 2^LUX_SCALE
-#define TSL2591_LUX_K6T           (0x019a)  // 0.80 * 2^RATIO_SCALE
-#define TSL2591_LUX_B6T           (0x00d2)  // 0.0128 * 2^LUX_SCALE
-#define TSL2591_LUX_M6T           (0x00fb)  // 0.0153 * 2^LUX_SCALE
-#define TSL2591_LUX_K7T           (0x029a)  // 1.3 * 2^RATIO_SCALE
-#define TSL2591_LUX_B7T           (0x0018)  // 0.00146 * 2^LUX_SCALE
-#define TSL2591_LUX_M7T           (0x0012)  // 0.00112 * 2^LUX_SCALE
-#define TSL2591_LUX_K8T           (0x029a)  // 1.3 * 2^RATIO_SCALE
-#define TSL2591_LUX_B8T           (0x0000)  // 0.000 * 2^LUX_SCALE
-#define TSL2591_LUX_M8T           (0x0000)  // 0.000 * 2^LUX_SCALE
-
-// CS package values
-#define TSL2591_LUX_K1C           (0x0043)  // 0.130 * 2^RATIO_SCALE
-#define TSL2591_LUX_B1C           (0x0204)  // 0.0315 * 2^LUX_SCALE
-#define TSL2591_LUX_M1C           (0x01ad)  // 0.0262 * 2^LUX_SCALE
-#define TSL2591_LUX_K2C           (0x0085)  // 0.260 * 2^RATIO_SCALE
-#define TSL2591_LUX_B2C           (0x0228)  // 0.0337 * 2^LUX_SCALE
-#define TSL2591_LUX_M2C           (0x02c1)  // 0.0430 * 2^LUX_SCALE
-#define TSL2591_LUX_K3C           (0x00c8)  // 0.390 * 2^RATIO_SCALE
-#define TSL2591_LUX_B3C           (0x0253)  // 0.0363 * 2^LUX_SCALE
-#define TSL2591_LUX_M3C           (0x0363)  // 0.0529 * 2^LUX_SCALE
-#define TSL2591_LUX_K4C           (0x010a)  // 0.520 * 2^RATIO_SCALE
-#define TSL2591_LUX_B4C           (0x0282)  // 0.0392 * 2^LUX_SCALE
-#define TSL2591_LUX_M4C           (0x03df)  // 0.0605 * 2^LUX_SCALE
-#define TSL2591_LUX_K5C           (0x014d)  // 0.65 * 2^RATIO_SCALE
-#define TSL2591_LUX_B5C           (0x0177)  // 0.0229 * 2^LUX_SCALE
-#define TSL2591_LUX_M5C           (0x01dd)  // 0.0291 * 2^LUX_SCALE
-#define TSL2591_LUX_K6C           (0x019a)  // 0.80 * 2^RATIO_SCALE
-#define TSL2591_LUX_B6C           (0x0101)  // 0.0157 * 2^LUX_SCALE
-#define TSL2591_LUX_M6C           (0x0127)  // 0.0180 * 2^LUX_SCALE
-#define TSL2591_LUX_K7C           (0x029a)  // 1.3 * 2^RATIO_SCALE
-#define TSL2591_LUX_B7C           (0x0037)  // 0.00338 * 2^LUX_SCALE
-#define TSL2591_LUX_M7C           (0x002b)  // 0.00260 * 2^LUX_SCALE
-#define TSL2591_LUX_K8C           (0x029a)  // 1.3 * 2^RATIO_SCALE
-#define TSL2591_LUX_B8C           (0x0000)  // 0.000 * 2^LUX_SCALE
-#define TSL2591_LUX_M8C           (0x0000)  // 0.000 * 2^LUX_SCALE
+#define TSL2591_LUX_DF            (408.0F)
+#define TSL2591_LUX_COEFB         (1.64F)  // CH0 coefficient 
+#define TSL2591_LUX_COEFC         (0.59F)  // CH1 coefficient A
+#define TSL2591_LUX_COEFD         (0.86F)  // CH2 coefficient B
 
 enum
 {
@@ -157,10 +109,10 @@ tsl2591IntegrationTime_t;
 
 typedef enum
 {
-  TSL2591_GAIN_LOW                  = 0x00,    // low gain
-  TSL2591_GAIN_MED                  = 0x10,    // medium gain
-  TSL2591_GAIN_HIGH                 = 0x20,    // medium gain
-  TSL2591_GAIN_MAX                  = 0x30,    // max gain
+  TSL2591_GAIN_LOW                  = 0x00,    // low gain (1x)
+  TSL2591_GAIN_MED                  = 0x10,    // medium gain (25x)
+  TSL2591_GAIN_HIGH                 = 0x20,    // medium gain (428x)
+  TSL2591_GAIN_MAX                  = 0x30,    // max gain (9876x)
 }
 tsl2591Gain_t;
 
