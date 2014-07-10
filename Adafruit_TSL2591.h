@@ -130,10 +130,13 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
   uint8_t   read8   ( uint8_t reg );
 
   uint32_t  calculateLux  ( uint16_t ch0, uint16_t ch1 );
-  void      setTiming     ( tsl2591IntegrationTime_t integration );
   void      setGain       ( tsl2591Gain_t gain );
+  void      setTiming     ( tsl2591IntegrationTime_t integration );
   uint16_t  getLuminosity (uint8_t channel );
   uint32_t  getFullLuminosity ( );
+
+  tsl2591IntegrationTime_t getTiming();
+  tsl2591Gain_t            getGain();
   
   /* Unified Sensor API Functions */  
   void getEvent  ( sensors_event_t* );

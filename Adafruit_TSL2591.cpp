@@ -140,6 +140,11 @@ void Adafruit_TSL2591::setGain(tsl2591Gain_t gain)
   disable();
 }
 
+tsl2591Gain_t Adafruit_TSL2591::getGain()
+{
+  return _gain;
+}
+
 void Adafruit_TSL2591::setTiming(tsl2591IntegrationTime_t integration)
 {
   if (!_initialized)
@@ -154,6 +159,11 @@ void Adafruit_TSL2591::setTiming(tsl2591IntegrationTime_t integration)
   _integration = integration;
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CONTROL, _integration | _gain);  
   disable();
+}
+
+tsl2591IntegrationTime_t Adafruit_TSL2591::getTiming()
+{
+  return _integration;
 }
 
 uint32_t Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
@@ -238,7 +248,7 @@ uint32_t Adafruit_TSL2591::getFullLuminosity (void)
   // Wait x ms for ADC to complete
   for (uint8_t d=0; d<=_integration; d++) 
   {
-    delay(110);
+    delay(120);
   }
 
   uint32_t x;
@@ -334,6 +344,9 @@ void Adafruit_TSL2591::getEvent(sensors_event_t *event)
 {
   uint16_t ir, full;
   uint32_t lum = getFullLuminosity();
+  /* Early silicon seems to have issues when there is a sudden jump in */
+  /* light levels. :( To work around this for now sample the sensor 2x */
+  lum = getFullLuminosity();
   ir = lum >> 16;
   full = lum & 0xFFFF;  
   
