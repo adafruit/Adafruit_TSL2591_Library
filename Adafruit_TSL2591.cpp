@@ -74,7 +74,6 @@ boolean Adafruit_TSL2591::begin(void)
   */
 
   uint8_t id = read8(0x12);
-  //Serial.print("id = 0x"); Serial.println(id, HEX);
   if (id == 0x50 ) 
   {
     //Serial.println("Found Adafruit_TSL2591");
