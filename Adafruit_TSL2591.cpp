@@ -3,9 +3,9 @@
     @file     Adafruit_TSL2591.cpp
     @author   KT0WN (adafruit.com)
 
-    This is a library for the Adafruit TSL2591 breakout board
-    This library works with the Adafruit TSL2591 breakout 
-    ----> https://www.adafruit.com/products/1980
+	  This is a library for the Adafruit TSL2591 breakout board
+	  This library works with the Adafruit TSL2591 breakout 
+	  ----> https://www.adafruit.com/products/1980
 	
     Check out the links above for our tutorials and wiring diagrams 
     These chips use I2C to communicate
