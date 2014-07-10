@@ -10,10 +10,10 @@
 
 // connect SCL to analog 5
 // connect SDA to analog 4
-// connect VDD to 3.3V DC
+// connect Vin to 3.3-5V DC
 // connect GROUND to common ground
 
-Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591);
+Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591); // pass in a number for the sensor identifier (for your use later)
 
 /**************************************************************************/
 /*
@@ -76,7 +76,7 @@ void setup(void)
 {
   Serial.begin(9600);
   
-  Serial.println("Starting");
+  Serial.println("Starting Adafruit TSL2591 Test!");
   
   if (tsl.begin()) 
   {
