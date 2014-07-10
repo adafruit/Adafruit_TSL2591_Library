@@ -3,16 +3,16 @@
     @file     Adafruit_TSL2591.cpp
     @author   KT0WN (adafruit.com)
 
-	  This is a library for the Adafruit TSL2591 breakout board
-	  This library works with the Adafruit TSL2591 breakout 
-	  ----> https://www.adafruit.com/products/
+    This is a library for the Adafruit TSL2591 breakout board
+    This library works with the Adafruit TSL2591 breakout 
+    ----> https://www.adafruit.com/products/1980
 	
-	  Check out the links above for our tutorials and wiring diagrams 
-  	These chips use I2C to communicate
+    Check out the links above for our tutorials and wiring diagrams 
+    These chips use I2C to communicate
 	
-  	Adafruit invests time and resources providing this open source code, 
-  	please support Adafruit and open-source hardware by purchasing 
-  	products from Adafruit!
+    Adafruit invests time and resources providing this open source code, 
+    please support Adafruit and open-source hardware by purchasing 
+    products from Adafruit!
 
     @section LICENSE
 
@@ -74,7 +74,7 @@ boolean Adafruit_TSL2591::begin(void)
   */
 
   uint8_t id = read8(0x12);
-  Serial.print("id = 0x"); Serial.println(id, HEX);
+  //Serial.print("id = 0x"); Serial.println(id, HEX);
   if (id == 0x50 ) 
   {
     //Serial.println("Found Adafruit_TSL2591");
