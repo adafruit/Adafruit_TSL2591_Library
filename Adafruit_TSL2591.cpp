@@ -171,6 +171,13 @@ uint32_t Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
   float    cpl, lux1, lux2, lux;
   uint32_t chan0, chan1;
 
+  // Check for overflow conditions first
+  if ((ch0 == 0xFFFF) | (ch1 == 0xFFFF))
+  {
+    // Signal an overflow
+    return 0;
+  }
+
   // Note: This algorithm is based on preliminary coefficients
   // provided by AMS and may need to be updated in the future
   
@@ -358,6 +365,7 @@ void Adafruit_TSL2591::getEvent(sensors_event_t *event)
   event->timestamp = millis();
 
   /* Calculate the actual lux value */
+  /* 0 = sensor overflow (too much light) */
   event->light = calculateLux(full, ir);
 }
 
