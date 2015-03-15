@@ -346,7 +346,7 @@ void Adafruit_TSL2591::write8 (uint8_t reg, uint8_t value)
     @brief  Gets the most recent sensor event
 */
 /**************************************************************************/
-void Adafruit_TSL2591::getEvent(sensors_event_t *event)
+bool Adafruit_TSL2591::getEvent(sensors_event_t *event)
 {
   uint16_t ir, full;
   uint32_t lum = getFullLuminosity();
@@ -367,6 +367,8 @@ void Adafruit_TSL2591::getEvent(sensors_event_t *event)
   /* Calculate the actual lux value */
   /* 0 = sensor overflow (too much light) */
   event->light = calculateLux(full, ir);
+  
+  return true;
 }
 
 /**************************************************************************/
