@@ -1,4 +1,4 @@
-/* TSL25911 Digital Light Sensor */
+/* TSL2591 Digital Light Sensor */
 /* Dynamic Range: 600M:1 */
 /* Maximum Lux: 88K */
 
