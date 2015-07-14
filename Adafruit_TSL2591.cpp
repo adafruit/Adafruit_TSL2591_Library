@@ -44,8 +44,14 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 /**************************************************************************/
+#if defined(ESP8266)
+#include <pgmspace.h>
+#else
 #include <avr/pgmspace.h>
+#endif
+#if defined(__AVR__)
 #include <util/delay.h>
+#endif
 #include <stdlib.h>
 
 #include "Adafruit_TSL2591.h"
