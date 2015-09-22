@@ -39,7 +39,7 @@ void displaySensorDetails(void)
 
 /**************************************************************************/
 /*
-    Configures the gain and integration time for the TSL2561
+    Configures the gain and integration time for the TSL2591
 */
 /**************************************************************************/
 void configureSensor(void)
@@ -126,8 +126,8 @@ void simpleRead(void)
   // or 'visible' (difference between the two) channels.
   // This can take 100-600 milliseconds! Uncomment whichever of the following you want to read
   uint16_t x = tsl.getLuminosity(TSL2591_VISIBLE);
-  //uint16_t x = tsl.getLuminosity(TSL2561_FULLSPECTRUM);
-  //uint16_t x = tsl.getLuminosity(TSL2561_INFRARED);
+  //uint16_t x = tsl.getLuminosity(TSL2591_FULLSPECTRUM);
+  //uint16_t x = tsl.getLuminosity(TSL2591_INFRARED);
 
   Serial.print("[ "); Serial.print(millis()); Serial.print(" ms ] ");
   Serial.print("Luminosity: ");
