@@ -47,16 +47,16 @@ void configureSensor(void)
   // You can change the gain on the fly, to adapt to brighter/dimmer light situations
   //tsl.setGain(TSL2591_GAIN_LOW);    // 1x gain (bright light)
   tsl.setGain(TSL2591_GAIN_MED);      // 25x gain
-  //tsl.setGain(TSL2591_GAIN_HIGH);   // 428x gain
+  // tsl.setGain(TSL2591_GAIN_HIGH);   // 428x gain
   
   // Changing the integration time gives you a longer time over which to sense light
   // longer timelines are slower, but are good in very low light situtations!
   tsl.setTiming(TSL2591_INTEGRATIONTIME_100MS);  // shortest integration time (bright light)
-  //tsl.setTiming(TSL2591_INTEGRATIONTIME_200MS);
-  //tsl.setTiming(TSL2591_INTEGRATIONTIME_300MS);
-  //tsl.setTiming(TSL2591_INTEGRATIONTIME_400MS);
-  //tsl.setTiming(TSL2591_INTEGRATIONTIME_500MS);
-  //tsl.setTiming(TSL2591_INTEGRATIONTIME_600MS);  // longest integration time (dim light)
+  // tsl.setTiming(TSL2591_INTEGRATIONTIME_200MS);
+  // tsl.setTiming(TSL2591_INTEGRATIONTIME_300MS);
+  // tsl.setTiming(TSL2591_INTEGRATIONTIME_400MS);
+  // tsl.setTiming(TSL2591_INTEGRATIONTIME_500MS);
+  // tsl.setTiming(TSL2591_INTEGRATIONTIME_600MS);  // longest integration time (dim light)
 
   /* Display the gain and integration time for reference sake */  
   Serial.println("------------------------------------");
@@ -84,6 +84,7 @@ void configureSensor(void)
   Serial.println("");
 }
 
+
 /**************************************************************************/
 /*
     Program entry point for the Arduino sketch
@@ -110,7 +111,13 @@ void setup(void)
   
   /* Configure the sensor */
   configureSensor();
-    
+
+  tsl.clearInterrupt();
+
+  // todo: https://www.arduino.cc/en/Reference/AttachInterrupt
+  tsl.registerInterrupt(100, 1500);
+  tsl.registerInterrupt(100, 1500, TSL2591_PERSIST_ANY);
+
   // Now we're ready to get readings ... move on to loop()!
 }
 
@@ -182,6 +189,28 @@ void unifiedSensorAPIRead(void)
   }
 }
 
+
+void getStatus(void)
+{
+  uint8_t x = tsl.getStatus();
+  // bit 4: ALS Interrupt occured
+  // bit 5: No-persist Interrupt occurence
+    if (x & 0x10) {
+      Serial.print("[ "); Serial.print(millis()); Serial.print(" ms ] ");
+      Serial.println("ALS Interrupt occured");
+    }
+    if (x & 0x20) {
+      Serial.print("[ "); Serial.print(millis()); Serial.print(" ms ] ");
+      Serial.println("No-persist Interrupt occured");
+    }  
+
+  // Serial.print("[ "); Serial.print(millis()); Serial.print(" ms ] ");
+  Serial.print("Status: ");
+  Serial.println(x, BIN);
+  tsl.clearInterrupt();
+}
+
+
 /**************************************************************************/
 /*
     Arduino loop function, called once 'setup' is complete (your own code
@@ -190,9 +219,11 @@ void unifiedSensorAPIRead(void)
 /**************************************************************************/
 void loop(void) 
 { 
-  // simpleRead(); 
-  // advancedRead();
-  unifiedSensorAPIRead();
+  //simpleRead(); 
+  advancedRead();
+  // unifiedSensorAPIRead();
   
-  delay(250);
+  getStatus();
+  
+  delay(500);
 }
