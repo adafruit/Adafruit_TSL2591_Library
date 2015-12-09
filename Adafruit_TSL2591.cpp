@@ -79,10 +79,10 @@ boolean Adafruit_TSL2591::begin(void)
   }
   */
 
-  uint8_t id = read8(0x12);
+  uint8_t id = read8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_DEVICE_ID);
   if (id == 0x50 ) 
   {
-    //Serial.println("Found Adafruit_TSL2591");
+     // Serial.println("Found Adafruit_TSL2591");
   } 
   else 
   {
@@ -112,7 +112,7 @@ void Adafruit_TSL2591::enable(void)
   }
 
   // Enable the device by setting the control bit to 0x01
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE, TSL2591_ENABLE_POWERON | TSL2591_ENABLE_AEN | TSL2591_ENABLE_AIEN);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE, TSL2591_ENABLE_POWERON | TSL2591_ENABLE_AEN | TSL2591_ENABLE_AIEN | TSL2591_ENABLE_NPIEN);
 }
 
 void Adafruit_TSL2591::disable(void)
@@ -297,15 +297,99 @@ uint16_t Adafruit_TSL2591::getLuminosity (uint8_t channel)
   return 0;
 }
 
+void Adafruit_TSL2591::registerInterrupt(uint16_t lowerThreshold, uint16_t upperThreshold)
+{
+  if (!_initialized)
+  {
+    if (!begin())
+    {
+      return;
+    }
+  }
+
+  enable();
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAILTL, lowerThreshold);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAILTH, lowerThreshold >> 8);  
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAIHTL, upperThreshold);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAIHTH, upperThreshold >> 8);  
+  disable();
+}
+
+void Adafruit_TSL2591::registerInterrupt(uint16_t lowerThreshold, uint16_t upperThreshold, tsl2591Persist_t persist)
+{
+  if (!_initialized)
+  {
+    if (!begin())
+    {
+      return;
+    }
+  }
+
+  enable();
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_PERSIST_FILTER,  persist);  
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AILTL, lowerThreshold);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AILTH, lowerThreshold >> 8);  
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AIHTL, upperThreshold);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AIHTH, upperThreshold >> 8);  
+  disable();
+}
+
+void Adafruit_TSL2591::clearInterrupt()
+{
+  if (!_initialized)
+  {
+    if (!begin())
+    {
+      return;
+    }
+  }
+
+  enable();
+  write8(TSL2591_CLEAR_INT);  
+  disable();
+}
+
+
+uint8_t Adafruit_TSL2591::getStatus()
+{
+  if (!_initialized)
+  {
+    if (!begin())
+    {
+      return 0;
+    }
+  }
+
+  // Enable the device
+  enable();
+  uint8_t x;
+  x = read8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_DEVICE_STATUS);  
+  disable();
+  return x;
+}
+
+
 uint8_t Adafruit_TSL2591::read8(uint8_t reg)
 {
-  Wire.beginTransmission(TSL2591_ADDR);
-  Wire.write(0x80 | 0x20 | reg); // command bit, normal mode
+  uint8_t x;
+  
+  Wire.beginTransmission(TSL2591_ADDR);  
+#if ARDUINO >= 100
+  Wire.write(reg);
+#else
+  Wire.send(reg);
+#endif  
   Wire.endTransmission();
-
+  
   Wire.requestFrom(TSL2591_ADDR, 1);
-  while (! Wire.available());
-  return Wire.read();
+#if ARDUINO >= 100
+  x = Wire.read();
+#else
+  x = Wire.receive();
+#endif  
+  // while (! Wire.available());
+  // return Wire.read();
+  return x;
 }
 
 uint16_t Adafruit_TSL2591::read16(uint8_t reg)
@@ -343,6 +427,18 @@ void Adafruit_TSL2591::write8 (uint8_t reg, uint8_t value)
 #else
   Wire.send(reg);
   Wire.send(value);
+#endif
+  Wire.endTransmission();
+}
+
+
+void Adafruit_TSL2591::write8 (uint8_t reg)
+{
+  Wire.beginTransmission(TSL2591_ADDR);
+#if ARDUINO >= 100
+  Wire.write(reg);
+#else
+  Wire.send(reg);
 #endif
   Wire.endTransmission();
 }
