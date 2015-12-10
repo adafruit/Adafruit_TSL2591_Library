@@ -2,6 +2,40 @@
 /* Dynamic Range: 600M:1 */
 /* Maximum Lux: 88K */
 
+/*  This example shows how the interrupt system on the TLS2591
+ *  can be used to detect a meaningful change in light levels.
+ *  
+ *  Two thresholds can be set: 
+ *  
+ *  Lower Threshold - Any light sample on CHAN0 below this value
+ *                    will trigger an interrupt
+ *  Upper Threshold - Any light sample on CHAN0 above this value
+ *                    will trigger an interrupt
+ *                    
+ *  If CHAN0 (full light) crosses below the low threshold specified,
+ *  or above the higher threshold, an interrupt is asserted on the interrupt
+ *  pin. The use of the HW pin is optional, though, since the change can
+ *  also be detected in software by looking at the status byte via
+ *  tsl.getStatus().
+ *  
+ *  An optional third parameter can be used in the .registerInterrupt
+ *  function to indicate the number of samples that must stay outside
+ *  the threshold window before the interrupt fires, providing some basic
+ *  debouncing of light level data.
+ *  
+ *  For example, the following code will fire an interrupt on any and every
+ *  sample outside the window threshold (meaning a sample below 100 or above
+ *  1500 on CHAN0 or FULL light):
+ *  
+ *    tsl.registerInterrupt(100, 1500, TSL2591_PERSIST_ANY);
+ *  
+ *  This code would require five consecutive changes before the interrupt
+ *  fires though (see tls2591Persist_t in Adafruit_TLS2591.h for possible
+ *  values):
+ *  
+ *    tsl.registerInterrupt(100, 1500, TSL2591_PERSIST_5);
+ */
+
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include "Adafruit_TSL2591.h"
@@ -12,7 +46,12 @@
 // connect SDA to analog 4
 // connect Vin to 3.3-5V DC
 // connect GROUND to common ground
-// connect INT
+
+// Interrupt thresholds and persistance
+#define TLS2591_INT_THRESHOLD_LOWER  (100)
+#define TLS2591_INT_THRESHOLD_UPPER  (1500)
+//#define TLS2591_INT_PERSIST        (TSL2591_PERSIST_ANY) // Fire on any valid change
+#define TLS2591_INT_PERSIST          (TSL2591_PERSIST_60)  // Require at least 60 samples to fire
 
 Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591); // pass in a number for the sensor identifier (for your use later)
 
@@ -83,6 +122,20 @@ void configureSensor(void)
   Serial.println(" ms");
   Serial.println("------------------------------------");
   Serial.println("");
+
+  /* Setup the SW interrupt to trigger between 100 and 1500 lux */
+  /* Threshold values are defined at the top of this sketch */
+  tsl.clearInterrupt();
+  tsl.registerInterrupt(TLS2591_INT_THRESHOLD_LOWER,
+                        TLS2591_INT_THRESHOLD_UPPER,
+                        TLS2591_INT_PERSIST);
+
+  /* Display the interrupt threshold window */
+  Serial.print("Interrupt Threshold Window: -");
+  Serial.print(TLS2591_INT_THRESHOLD_LOWER, DEC);
+  Serial.print(" to +");
+  Serial.println(TLS2591_INT_THRESHOLD_LOWER, DEC);  
+  Serial.println("");
 }
 
 
@@ -94,6 +147,10 @@ void configureSensor(void)
 void setup(void)
 {
   Serial.begin(9600);
+
+  // Enable this line for Flora, Zero and Feather boards with no FTDI chip
+  // Waits for the serial port to connect before sending data out
+  // while (!Serial) { delay(1); }
 
   Serial.println("Starting Adafruit TSL2591 interrupt Test!");
 
@@ -110,12 +167,8 @@ void setup(void)
   /* Display some basic information on this sensor */
   displaySensorDetails();
 
-  /* Configure the sensor */
+  /* Configure the sensor (including the interrupt threshold) */
   configureSensor();
-
-  tsl.clearInterrupt();
-  tsl.registerInterrupt(100, 1500);
-  tsl.registerInterrupt(100, 1500, TSL2591_PERSIST_ANY);
 
   // Now we're ready to get readings ... move on to loop()!
 }
