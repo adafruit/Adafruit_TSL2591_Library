@@ -152,7 +152,7 @@ void advancedRead(void)
   Serial.print("IR: "); Serial.print(ir);  Serial.print("  ");
   Serial.print("Full: "); Serial.print(full); Serial.print("  ");
   Serial.print("Visible: "); Serial.print(full - ir); Serial.print("  ");
-  Serial.print("Lux: "); Serial.println(tsl.calculateLux(full, ir));
+  Serial.print("Lux: "); Serial.println(tsl.calculateLux(full, ir), 6);
 }
 
 /**************************************************************************/
