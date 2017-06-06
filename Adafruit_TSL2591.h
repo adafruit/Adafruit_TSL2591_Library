@@ -80,6 +80,13 @@
 #define TSL2591_LUX_COEFC         (0.59F)  // CH1 coefficient A
 #define TSL2591_LUX_COEFD         (0.86F)  // CH2 coefficient B
 
+#define TSL2591_CLIP_100MS        (0x9400)
+#define TSL2591_CLIP_OTHER        (0xFFFF)
+
+#define TSL2591_LUX_CLIPPED           (90000)
+
+#define TSL2591_STATUS_AVALID	(0x01)
+
 enum
 {
   TSL2591_REGISTER_ENABLE             = 0x00,

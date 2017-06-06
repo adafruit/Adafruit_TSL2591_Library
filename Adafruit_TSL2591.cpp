@@ -175,14 +175,8 @@ uint32_t Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
 {
   float    atime, again;
   float    cpl, lux1, lux2, lux;
+  uint16_t clip;
   uint32_t chan0, chan1;
-
-  // Check for overflow conditions first
-  if ((ch0 == 0xFFFF) | (ch1 == 0xFFFF))
-  {
-    // Signal an overflow
-    return 0;
-  }
 
   // Note: This algorithm is based on preliminary coefficients
   // provided by AMS and may need to be updated in the future
@@ -191,26 +185,41 @@ uint32_t Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
   {
     case TSL2591_INTEGRATIONTIME_100MS :
       atime = 100.0F;
+      clip = TSL2591_CLIP_100MS;
       break;
     case TSL2591_INTEGRATIONTIME_200MS :
       atime = 200.0F;
+      clip = TSL2591_CLIP_OTHER;
       break;
     case TSL2591_INTEGRATIONTIME_300MS :
       atime = 300.0F;
+      clip = TSL2591_CLIP_OTHER;
       break;
     case TSL2591_INTEGRATIONTIME_400MS :
       atime = 400.0F;
+      clip = TSL2591_CLIP_OTHER;
       break;
     case TSL2591_INTEGRATIONTIME_500MS :
       atime = 500.0F;
+      clip = TSL2591_CLIP_OTHER;
       break;
     case TSL2591_INTEGRATIONTIME_600MS :
       atime = 600.0F;
+      clip = TSL2591_CLIP_OTHER;
       break;
     default: // 100ms
       atime = 100.0F;
+      clip = TSL2591_CLIP_OTHER;
       break;
   }
+
+  // Check for overflow conditions first
+  if ((ch0 >= clip) | (ch1 >= clip))
+  {
+    // Signal an overflow
+    return TSL2591_LUX_CLIPPED;
+  }
+
 
   switch (_gain)
   {
@@ -240,6 +249,8 @@ uint32_t Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
 
   // Alternate lux calculation
   //lux = ( (float)ch0 - ( 1.7F * (float)ch1 ) ) / cpl;
+
+  if( lux < 0 ) lux = 0;
 
   // Signal I2C had no errors
   return (uint32_t)lux;
