@@ -180,7 +180,7 @@ uint16_t Sensor_TSL2591::getGainFactor()
 
 uint32_t Sensor_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
 {
-  uint32_t clip = getClip();
+  uint16_t clip = getClip();
 
   // Note: This algorithm is based on preliminary coefficients
   // provided by AMS and may need to be updated in the future
