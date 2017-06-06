@@ -80,6 +80,13 @@
 #define TSL2591_LUX_COEFC         (0.59F)  // CH1 coefficient A
 #define TSL2591_LUX_COEFD         (0.86F)  // CH2 coefficient B
 
+#define TSL2591_CLIP_100MS        (0x9400)
+#define TSL2591_CLIP_OTHER        (0xFFFF)
+
+#define TSL2591_LUX_CLIPPED           (90000)
+
+#define TSL2591_STATUS_AVALID	(0x01)
+
 enum
 {
   TSL2591_REGISTER_ENABLE             = 0x00,
@@ -144,6 +151,60 @@ typedef enum
 }
 tsl2591Gain_t;
 
+/**************************************************************************
+ * Sensor_TSL2591
+ * thin class actually talking to the sensor
+ * stripped down to the bare minimum for most efficient use
+ * tests showed 36 bytes ram less being used with a single instance
+ **************************************************************************/
+class Sensor_TSL2591
+{
+ public:
+  Sensor_TSL2591();
+
+  boolean   begin   ( void );
+
+  void      enable  ( void );
+  void      disable ( void );
+
+  uint8_t   getStatus();
+
+  tsl2591IntegrationTime_t getTiming();
+  tsl2591Gain_t            getGain();
+  void      setGain       ( tsl2591Gain_t gain );
+  void      setTiming     ( tsl2591IntegrationTime_t integration );
+
+  uint16_t  getTime(); // get actual time for a measurement in msec:
+  uint32_t  getClip(); // get clip value for individual channels;
+  uint16_t  getGainFactor();
+
+  uint32_t  getFullLuminosity ( );
+  uint32_t  calculateLux  ( uint16_t ch0, uint16_t ch1 );
+
+  // Interrupt
+  void    clearInterrupt(void);
+  void    registerInterrupt(uint16_t lowerThreshold, uint16_t upperThreshold);
+  void    registerInterrupt(uint16_t lowerThreshold, uint16_t upperThreshold, tsl2591Persist_t persist);
+
+ protected:
+  void      write8  ( uint8_t r);
+  void      write8  ( uint8_t r, uint8_t v );
+  uint16_t  read16  ( uint8_t reg );
+  uint8_t   read8   ( uint8_t reg );
+
+ private:
+  tsl2591IntegrationTime_t _integration;
+  tsl2591Gain_t _gain;
+};
+
+
+/**************************************************************************
+ * Adafruit_TSL2591
+ * original Adafruit API wrapper around the actual "thin" Sensor_TSL2591
+ * the inheritance uses quite some memory for the vtable...
+ * and the enforced enable/disable/... make advanced use impossible
+ * advanced waiting while waiting for integration time to elaps isn't possible, either
+ **************************************************************************/
 class Adafruit_TSL2591 : public Adafruit_Sensor
 {
  public:
@@ -152,10 +213,6 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
   boolean   begin   ( void );
   void      enable  ( void );
   void      disable ( void );
-  void      write8  ( uint8_t r);
-  void      write8  ( uint8_t r, uint8_t v );
-  uint16_t  read16  ( uint8_t reg );
-  uint8_t   read8   ( uint8_t reg );
 
   uint32_t  calculateLux  ( uint16_t ch0, uint16_t ch1 );
   void      setGain       ( tsl2591Gain_t gain );
@@ -177,8 +234,7 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
   void getSensor ( sensor_t* );
 
  private:
-  tsl2591IntegrationTime_t _integration;
-  tsl2591Gain_t _gain;
+  Sensor_TSL2591 tsl;
   int32_t _sensorID;
 
   boolean _initialized;

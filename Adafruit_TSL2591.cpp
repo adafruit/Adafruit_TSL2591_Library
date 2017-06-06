@@ -59,44 +59,16 @@
 Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID)
 {
   _initialized = false;
-  _integration = TSL2591_INTEGRATIONTIME_100MS;
-  _gain        = TSL2591_GAIN_MED;
   _sensorID    = sensorID;
-
-  // we cant do wire initialization till later, because we havent loaded Wire yet
 }
 
 boolean Adafruit_TSL2591::begin(void)
 {
-  Wire.begin();
+  if( ! tsl.begin() )
+	return false;
 
-  /*
-  for (uint8_t i=0; i<0x20; i++)
-  {
-    uint8_t id = read8(0x12);
-    Serial.print("$"); Serial.print(i, HEX);
-    Serial.print(" = 0x"); Serial.println(read8(i), HEX);
-  }
-  */
-
-  uint8_t id = read8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_DEVICE_ID);
-  if (id == 0x50 )
-  {
-     // Serial.println("Found Adafruit_TSL2591");
-  }
-  else
-  {
-    return false;
-  }
-
-  _initialized = true;
-
-  // Set default integration time and gain
-  setTiming(_integration);
-  setGain(_gain);
-
-  // Note: by default, the device is in power down mode on bootup
   disable();
+  _initialized = true;
 
   return true;
 }
@@ -111,8 +83,7 @@ void Adafruit_TSL2591::enable(void)
     }
   }
 
-  // Enable the device by setting the control bit to 0x01
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE, TSL2591_ENABLE_POWERON | TSL2591_ENABLE_AEN | TSL2591_ENABLE_AIEN | TSL2591_ENABLE_NPIEN);
+  tsl.enable();
 }
 
 void Adafruit_TSL2591::disable(void)
@@ -125,8 +96,7 @@ void Adafruit_TSL2591::disable(void)
     }
   }
 
-  // Disable the device by setting the control bit to 0x00
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE, TSL2591_ENABLE_POWEROFF);
+  tsl.disable();
 }
 
 void Adafruit_TSL2591::setGain(tsl2591Gain_t gain)
@@ -139,15 +109,13 @@ void Adafruit_TSL2591::setGain(tsl2591Gain_t gain)
     }
   }
 
-  enable();
-  _gain = gain;
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CONTROL, _integration | _gain);
+  tsl.setGain( gain );
   disable();
 }
 
 tsl2591Gain_t Adafruit_TSL2591::getGain()
 {
-  return _gain;
+  return tsl.getGain();
 }
 
 void Adafruit_TSL2591::setTiming(tsl2591IntegrationTime_t integration)
@@ -160,89 +128,18 @@ void Adafruit_TSL2591::setTiming(tsl2591IntegrationTime_t integration)
     }
   }
 
-  enable();
-  _integration = integration;
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CONTROL, _integration | _gain);
+  tsl.setTiming( integration );
   disable();
 }
 
 tsl2591IntegrationTime_t Adafruit_TSL2591::getTiming()
 {
-  return _integration;
+  return tsl.getTiming();
 }
 
 uint32_t Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
 {
-  float    atime, again;
-  float    cpl, lux1, lux2, lux;
-  uint32_t chan0, chan1;
-
-  // Check for overflow conditions first
-  if ((ch0 == 0xFFFF) | (ch1 == 0xFFFF))
-  {
-    // Signal an overflow
-    return 0;
-  }
-
-  // Note: This algorithm is based on preliminary coefficients
-  // provided by AMS and may need to be updated in the future
-
-  switch (_integration)
-  {
-    case TSL2591_INTEGRATIONTIME_100MS :
-      atime = 100.0F;
-      break;
-    case TSL2591_INTEGRATIONTIME_200MS :
-      atime = 200.0F;
-      break;
-    case TSL2591_INTEGRATIONTIME_300MS :
-      atime = 300.0F;
-      break;
-    case TSL2591_INTEGRATIONTIME_400MS :
-      atime = 400.0F;
-      break;
-    case TSL2591_INTEGRATIONTIME_500MS :
-      atime = 500.0F;
-      break;
-    case TSL2591_INTEGRATIONTIME_600MS :
-      atime = 600.0F;
-      break;
-    default: // 100ms
-      atime = 100.0F;
-      break;
-  }
-
-  switch (_gain)
-  {
-    case TSL2591_GAIN_LOW :
-      again = 1.0F;
-      break;
-    case TSL2591_GAIN_MED :
-      again = 25.0F;
-      break;
-    case TSL2591_GAIN_HIGH :
-      again = 428.0F;
-      break;
-    case TSL2591_GAIN_MAX :
-      again = 9876.0F;
-      break;
-    default:
-      again = 1.0F;
-      break;
-  }
-
-  // cpl = (ATIME * AGAIN) / DF
-  cpl = (atime * again) / TSL2591_LUX_DF;
-
-  lux1 = ( (float)ch0 - (TSL2591_LUX_COEFB * (float)ch1) ) / cpl;
-  lux2 = ( ( TSL2591_LUX_COEFC * (float)ch0 ) - ( TSL2591_LUX_COEFD * (float)ch1 ) ) / cpl;
-  lux = lux1 > lux2 ? lux1 : lux2;
-
-  // Alternate lux calculation
-  //lux = ( (float)ch0 - ( 1.7F * (float)ch1 ) ) / cpl;
-
-  // Signal I2C had no errors
-  return (uint32_t)lux;
+  return tsl.calculateLux( ch0, ch1 );
 }
 
 uint32_t Adafruit_TSL2591::getFullLuminosity (void)
@@ -259,15 +156,15 @@ uint32_t Adafruit_TSL2591::getFullLuminosity (void)
   enable();
 
   // Wait x ms for ADC to complete
-  for (uint8_t d=0; d<=_integration; d++)
+  for (uint8_t d=0; d<=tsl.getTiming(); d++)
   {
     delay(120);
   }
 
-  uint32_t x;
-  x = read16(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CHAN1_LOW);
-  x <<= 16;
-  x |= read16(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CHAN0_LOW);
+  uint32_t x = tsl.getFullLuminosity();
+  // keep old API braindamage
+  if( x == UINT32_MAX )
+	x = 0;
 
   disable();
 
@@ -308,11 +205,7 @@ void Adafruit_TSL2591::registerInterrupt(uint16_t lowerThreshold, uint16_t upper
     }
   }
 
-  enable();
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAILTL, lowerThreshold);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAILTH, lowerThreshold >> 8);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAIHTL, upperThreshold);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAIHTH, upperThreshold >> 8);
+  tsl.registerInterrupt( lowerThreshold, upperThreshold );
   disable();
 }
 
@@ -326,12 +219,7 @@ void Adafruit_TSL2591::registerInterrupt(uint16_t lowerThreshold, uint16_t upper
     }
   }
 
-  enable();
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_PERSIST_FILTER,  persist);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AILTL, lowerThreshold);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AILTH, lowerThreshold >> 8);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AIHTL, upperThreshold);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AIHTH, upperThreshold >> 8);
+  tsl.registerInterrupt( lowerThreshold, upperThreshold, persist );
   disable();
 }
 
@@ -345,8 +233,7 @@ void Adafruit_TSL2591::clearInterrupt()
     }
   }
 
-  enable();
-  write8(TSL2591_CLEAR_INT);
+  tsl.clearInterrupt();
   disable();
 }
 
@@ -361,88 +248,11 @@ uint8_t Adafruit_TSL2591::getStatus()
     }
   }
 
-  // Enable the device
-  enable();
-  uint8_t x;
-  x = read8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_DEVICE_STATUS);
+  uint8_t x = tsl.getStatus();
   disable();
   return x;
 }
 
-
-uint8_t Adafruit_TSL2591::read8(uint8_t reg)
-{
-  uint8_t x;
-
-  Wire.beginTransmission(TSL2591_ADDR);
-#if ARDUINO >= 100
-  Wire.write(reg);
-#else
-  Wire.send(reg);
-#endif
-  Wire.endTransmission();
-
-  Wire.requestFrom(TSL2591_ADDR, 1);
-#if ARDUINO >= 100
-  x = Wire.read();
-#else
-  x = Wire.receive();
-#endif
-  // while (! Wire.available());
-  // return Wire.read();
-  return x;
-}
-
-uint16_t Adafruit_TSL2591::read16(uint8_t reg)
-{
-  uint16_t x;
-  uint16_t t;
-
-  Wire.beginTransmission(TSL2591_ADDR);
-#if ARDUINO >= 100
-  Wire.write(reg);
-#else
-  Wire.send(reg);
-#endif
-  Wire.endTransmission();
-
-  Wire.requestFrom(TSL2591_ADDR, 2);
-#if ARDUINO >= 100
-  t = Wire.read();
-  x = Wire.read();
-#else
-  t = Wire.receive();
-  x = Wire.receive();
-#endif
-  x <<= 8;
-  x |= t;
-  return x;
-}
-
-void Adafruit_TSL2591::write8 (uint8_t reg, uint8_t value)
-{
-  Wire.beginTransmission(TSL2591_ADDR);
-#if ARDUINO >= 100
-  Wire.write(reg);
-  Wire.write(value);
-#else
-  Wire.send(reg);
-  Wire.send(value);
-#endif
-  Wire.endTransmission();
-}
-
-
-void Adafruit_TSL2591::write8 (uint8_t reg)
-{
-  Wire.beginTransmission(TSL2591_ADDR);
-#if ARDUINO >= 100
-  Wire.write(reg);
-#else
-  Wire.send(reg);
-#endif
-  Wire.endTransmission();
-}
 
 /**************************************************************************/
 /*!
