@@ -149,7 +149,7 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
  public:
   Adafruit_TSL2591(int32_t sensorID = -1);
   
-  boolean   begin   ( void );
+  boolean   begin   ( int sda=-1, int scl=-1 );
   void      enable  ( void );
   void      disable ( void );
   void      write8  ( uint8_t r);
