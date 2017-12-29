@@ -66,9 +66,10 @@ Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID)
   // we cant do wire initialization till later, because we havent loaded Wire yet
 }
 
-boolean Adafruit_TSL2591::begin(void)
+// initialise with specified Wire SDA / SCL pins (defaulting to -1)
+boolean Adafruit_TSL2591::begin( int sda, int scl )
 {
-  Wire.begin();
+  Wire.begin(sda, scl);
 
   /*
   for (uint8_t i=0; i<0x20; i++)
