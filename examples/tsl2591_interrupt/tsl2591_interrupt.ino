@@ -42,8 +42,8 @@
 
 // Example for demonstrating the TSL2591 library - public domain!
 
-// connect SCL to analog 5
-// connect SDA to analog 4
+// connect SCL to I2C Clock
+// connect SDA to I2C Data
 // connect Vin to 3.3-5V DC
 // connect GROUND to common ground
 
@@ -71,7 +71,7 @@ void displaySensorDetails(void)
   Serial.print  ("Unique ID:    "); Serial.println(sensor.sensor_id);
   Serial.print  ("Max Value:    "); Serial.print(sensor.max_value); Serial.println(" lux");
   Serial.print  ("Min Value:    "); Serial.print(sensor.min_value); Serial.println(" lux");
-  Serial.print  ("Resolution:   "); Serial.print(sensor.resolution); Serial.println(" lux");
+  Serial.print  ("Resolution:   "); Serial.print(sensor.resolution, 4); Serial.println(" lux");
   Serial.println("------------------------------------");
   Serial.println("");
   delay(500);
@@ -131,10 +131,10 @@ void configureSensor(void)
                         TLS2591_INT_PERSIST);
 
   /* Display the interrupt threshold window */
-  Serial.print("Interrupt Threshold Window: -");
+  Serial.print("Interrupt Threshold Window: ");
   Serial.print(TLS2591_INT_THRESHOLD_LOWER, DEC);
-  Serial.print(" to +");
-  Serial.println(TLS2591_INT_THRESHOLD_LOWER, DEC);  
+  Serial.print(" to ");
+  Serial.println(TLS2591_INT_THRESHOLD_UPPER, DEC);  
   Serial.println("");
 }
 
