@@ -217,7 +217,7 @@ tsl2591IntegrationTime_t Adafruit_TSL2591::getTiming()
     @returns Lux, based on AMS coefficients
 */
 /**************************************************************************/
-uint32_t Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
+float Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
 {
   float    atime, again;
   float    cpl, lux1, lux2, lux;
@@ -288,7 +288,7 @@ uint32_t Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
   //lux = ( (float)ch0 - ( 1.7F * (float)ch1 ) ) / cpl;
 
   // Signal I2C had no errors
-  return (uint32_t)lux;
+  return lux;
 }
 
 /************************************************************************/
