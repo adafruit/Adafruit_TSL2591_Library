@@ -45,17 +45,23 @@
 */
 /**************************************************************************/
 #if defined(ESP8266) || defined(ESP32)
-#include <pgmspace.h>
+  #include <pgmspace.h>
 #else
-#include <avr/pgmspace.h>
+  #include <avr/pgmspace.h>
 #endif
 #if defined(__AVR__)
-#include <util/delay.h>
+  #include <util/delay.h>
 #endif
 #include <stdlib.h>
 
 #include "Adafruit_TSL2591.h"
 
+/**************************************************************************/
+/*! 
+    @brief  Instantiates a new Adafruit TSL2591 class
+    @param  sensorID An optional ID # so you can track this sensor, it will tag sensorEvents you create.
+*/
+/**************************************************************************/
 Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID)
 {
   _initialized = false;
@@ -66,6 +72,12 @@ Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID)
   // we cant do wire initialization till later, because we havent loaded Wire yet
 }
 
+/**************************************************************************/
+/*! 
+    @brief  Setups the I2C interface and hardware, identifies if chip is found
+    @returns True if a TSL2591 is found, false on any failure
+*/
+/**************************************************************************/
 boolean Adafruit_TSL2591::begin(void)
 {
   Wire.begin();
@@ -80,14 +92,10 @@ boolean Adafruit_TSL2591::begin(void)
   */
 
   uint8_t id = read8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_DEVICE_ID);
-  if (id == 0x50 )
-  {
-     // Serial.println("Found Adafruit_TSL2591");
-  }
-  else
-  {
+  if (id != 0x50 ) {
     return false;
   }
+  // Serial.println("Found Adafruit_TSL2591");
 
   _initialized = true;
 
@@ -101,6 +109,11 @@ boolean Adafruit_TSL2591::begin(void)
   return true;
 }
 
+/**************************************************************************/
+/*! 
+    @brief  Enables the chip, so it's ready to take readings
+*/
+/**************************************************************************/
 void Adafruit_TSL2591::enable(void)
 {
   if (!_initialized)
@@ -112,15 +125,20 @@ void Adafruit_TSL2591::enable(void)
   }
 
   // Enable the device by setting the control bit to 0x01
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE, TSL2591_ENABLE_POWERON | TSL2591_ENABLE_AEN | TSL2591_ENABLE_AIEN | TSL2591_ENABLE_NPIEN);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE, 
+	 TSL2591_ENABLE_POWERON | TSL2591_ENABLE_AEN | TSL2591_ENABLE_AIEN | TSL2591_ENABLE_NPIEN);
 }
 
+
+/**************************************************************************/
+/*! 
+    @brief Disables the chip, so it's in power down mode
+*/
+/**************************************************************************/
 void Adafruit_TSL2591::disable(void)
 {
-  if (!_initialized)
-  {
-    if (!begin())
-    {
+  if (!_initialized) {
+    if (!begin()) {
       return;
     }
   }
@@ -129,12 +147,16 @@ void Adafruit_TSL2591::disable(void)
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE, TSL2591_ENABLE_POWEROFF);
 }
 
+/************************************************************************/
+/*!
+    @brief  Setter for sensor light gain
+    @param  gain {@link tsl2591Gain_t} gain value
+*/
+/**************************************************************************/
 void Adafruit_TSL2591::setGain(tsl2591Gain_t gain)
 {
-  if (!_initialized)
-  {
-    if (!begin())
-    {
+  if (!_initialized) {
+    if (!begin()) {
       return;
     }
   }
@@ -145,17 +167,27 @@ void Adafruit_TSL2591::setGain(tsl2591Gain_t gain)
   disable();
 }
 
+/************************************************************************/
+/*!
+    @brief  Getter for sensor light gain
+    @returns {@link tsl2591Gain_t} gain value
+*/
+/**************************************************************************/
 tsl2591Gain_t Adafruit_TSL2591::getGain()
 {
   return _gain;
 }
 
+/************************************************************************/
+/*!
+    @brief  Setter for sensor integration time setting
+    @param integration {@link tsl2591IntegrationTime_t} integration time setting
+*/
+/**************************************************************************/
 void Adafruit_TSL2591::setTiming(tsl2591IntegrationTime_t integration)
 {
-  if (!_initialized)
-  {
-    if (!begin())
-    {
+  if (!_initialized) {
+    if (!begin()) {
       return;
     }
   }
@@ -166,11 +198,25 @@ void Adafruit_TSL2591::setTiming(tsl2591IntegrationTime_t integration)
   disable();
 }
 
+/************************************************************************/
+/*!
+    @brief  Getter for sensor integration time setting
+    @returns {@link tsl2591IntegrationTime_t} integration time
+*/
+/**************************************************************************/
 tsl2591IntegrationTime_t Adafruit_TSL2591::getTiming()
 {
   return _integration;
 }
 
+/************************************************************************/
+/*!
+    @brief  Calculates the visible Lux based on the two light sensors
+    @param  ch0 Data from channel 0 (IR+Visible)
+    @param  ch1 Data from channel 1 (IR)
+    @returns Lux, based on AMS coefficients
+*/
+/**************************************************************************/
 uint32_t Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
 {
   float    atime, again;
@@ -245,12 +291,16 @@ uint32_t Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
   return (uint32_t)lux;
 }
 
+/************************************************************************/
+/*!
+    @brief  Reads the raw data from both light channels
+    @returns 32-bit raw count where high word is IR, low word is IR+Visible
+*/
+/**************************************************************************/
 uint32_t Adafruit_TSL2591::getFullLuminosity (void)
 {
-  if (!_initialized)
-  {
-    if (!begin())
-    {
+  if (!_initialized) {
+    if (!begin()) {
       return 0;
     }
   }
@@ -274,6 +324,13 @@ uint32_t Adafruit_TSL2591::getFullLuminosity (void)
   return x;
 }
 
+/************************************************************************/
+/*!
+    @brief  Reads the raw data from the channel
+    @param  channel Can be 0 (IR+Visible, 1 (IR) or 2 (Visible only)
+    @returns 16-bit raw count, or 0 if channel is invalid
+*/
+/**************************************************************************/
 uint16_t Adafruit_TSL2591::getLuminosity (uint8_t channel)
 {
   uint32_t x = getFullLuminosity();
@@ -298,30 +355,18 @@ uint16_t Adafruit_TSL2591::getLuminosity (uint8_t channel)
   return 0;
 }
 
-void Adafruit_TSL2591::registerInterrupt(uint16_t lowerThreshold, uint16_t upperThreshold)
+/************************************************************************/
+/*!
+    @brief  Set up the interrupt to go off when light level is outside the lower/upper range.
+    @param  lowerThreshold Raw light data reading level that is the lower value threshold for interrupt
+    @param  upperThreshold Raw light data reading level that is the higher value threshold for interrupt
+    @param  persist How many counts we must be outside range for interrupt to fire, default is any single value
+*/
+/**************************************************************************/
+void Adafruit_TSL2591::registerInterrupt(uint16_t lowerThreshold, uint16_t upperThreshold, tsl2591Persist_t persist = TSL2591_PERSIST_ANY)
 {
-  if (!_initialized)
-  {
-    if (!begin())
-    {
-      return;
-    }
-  }
-
-  enable();
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAILTL, lowerThreshold);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAILTH, lowerThreshold >> 8);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAIHTL, upperThreshold);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAIHTH, upperThreshold >> 8);
-  disable();
-}
-
-void Adafruit_TSL2591::registerInterrupt(uint16_t lowerThreshold, uint16_t upperThreshold, tsl2591Persist_t persist)
-{
-  if (!_initialized)
-  {
-    if (!begin())
-    {
+  if (!_initialized) {
+    if (!begin()) {
       return;
     }
   }
@@ -335,12 +380,15 @@ void Adafruit_TSL2591::registerInterrupt(uint16_t lowerThreshold, uint16_t upper
   disable();
 }
 
+/************************************************************************/
+/*!
+    @brief  Clear interrupt status
+*/
+/**************************************************************************/
 void Adafruit_TSL2591::clearInterrupt()
 {
-  if (!_initialized)
-  {
-    if (!begin())
-    {
+  if (!_initialized) {
+    if (!begin()) {
       return;
     }
   }
@@ -351,12 +399,16 @@ void Adafruit_TSL2591::clearInterrupt()
 }
 
 
-uint8_t Adafruit_TSL2591::getStatus()
+/************************************************************************/
+/*!
+    @brief  Gets the most recent sensor event from the hardware status register.
+    @return Sensor status as a byte. Bit 0 is ALS Valid. Bit 4 is ALS Interrupt. Bit 5 is No-persist Interrupt.
+*/
+/**************************************************************************/
+uint8_t Adafruit_TSL2591::getStatus(void)
 {
-  if (!_initialized)
-  {
-    if (!begin())
-    {
+  if (!_initialized) {
+    if (!begin()) {
       return 0;
     }
   }
@@ -369,84 +421,11 @@ uint8_t Adafruit_TSL2591::getStatus()
   return x;
 }
 
-
-uint8_t Adafruit_TSL2591::read8(uint8_t reg)
-{
-  uint8_t x;
-
-  Wire.beginTransmission(TSL2591_ADDR);
-#if ARDUINO >= 100
-  Wire.write(reg);
-#else
-  Wire.send(reg);
-#endif
-  Wire.endTransmission();
-
-  Wire.requestFrom(TSL2591_ADDR, 1);
-#if ARDUINO >= 100
-  x = Wire.read();
-#else
-  x = Wire.receive();
-#endif
-  // while (! Wire.available());
-  // return Wire.read();
-  return x;
-}
-
-uint16_t Adafruit_TSL2591::read16(uint8_t reg)
-{
-  uint16_t x;
-  uint16_t t;
-
-  Wire.beginTransmission(TSL2591_ADDR);
-#if ARDUINO >= 100
-  Wire.write(reg);
-#else
-  Wire.send(reg);
-#endif
-  Wire.endTransmission();
-
-  Wire.requestFrom(TSL2591_ADDR, 2);
-#if ARDUINO >= 100
-  t = Wire.read();
-  x = Wire.read();
-#else
-  t = Wire.receive();
-  x = Wire.receive();
-#endif
-  x <<= 8;
-  x |= t;
-  return x;
-}
-
-void Adafruit_TSL2591::write8 (uint8_t reg, uint8_t value)
-{
-  Wire.beginTransmission(TSL2591_ADDR);
-#if ARDUINO >= 100
-  Wire.write(reg);
-  Wire.write(value);
-#else
-  Wire.send(reg);
-  Wire.send(value);
-#endif
-  Wire.endTransmission();
-}
-
-
-void Adafruit_TSL2591::write8 (uint8_t reg)
-{
-  Wire.beginTransmission(TSL2591_ADDR);
-#if ARDUINO >= 100
-  Wire.write(reg);
-#else
-  Wire.send(reg);
-#endif
-  Wire.endTransmission();
-}
-
-/**************************************************************************/
+/************************************************************************/
 /*!
     @brief  Gets the most recent sensor event
+    @param  event Pointer to Adafruit_Sensor sensors_event_t object that will be filled with sensor data
+    @return True on success, False on failure
 */
 /**************************************************************************/
 bool Adafruit_TSL2591::getEvent(sensors_event_t *event)
@@ -476,7 +455,8 @@ bool Adafruit_TSL2591::getEvent(sensors_event_t *event)
 
 /**************************************************************************/
 /*!
-    @brief  Gets the sensor_t data
+    @brief  Gets the overall sensor_t data including the type, range and resulution
+    @param  sensor Pointer to Adafruit_Sensor sensor_t object that will be filled with sensor type data
 */
 /**************************************************************************/
 void Adafruit_TSL2591::getSensor(sensor_t *sensor)
@@ -494,4 +474,54 @@ void Adafruit_TSL2591::getSensor(sensor_t *sensor)
   sensor->max_value   = 88000.0;
   sensor->min_value   = 0.0;
   sensor->resolution  = 1.0;
+}
+/*******************************************************/
+
+
+uint8_t Adafruit_TSL2591::read8(uint8_t reg)
+{
+  uint8_t x;
+
+  Wire.beginTransmission(TSL2591_ADDR);
+  Wire.write(reg);
+  Wire.endTransmission();
+
+  Wire.requestFrom(TSL2591_ADDR, 1);
+  x = Wire.read();
+
+  return x;
+}
+
+uint16_t Adafruit_TSL2591::read16(uint8_t reg)
+{
+  uint16_t x;
+  uint16_t t;
+
+  Wire.beginTransmission(TSL2591_ADDR);
+  Wire.write(reg);
+  Wire.endTransmission();
+
+  Wire.requestFrom(TSL2591_ADDR, 2);
+  t = Wire.read();
+  x = Wire.read();
+
+  x <<= 8;
+  x |= t;
+  return x;
+}
+
+void Adafruit_TSL2591::write8 (uint8_t reg, uint8_t value)
+{
+  Wire.beginTransmission(TSL2591_ADDR);
+  Wire.write(reg);
+  Wire.write(value);
+  Wire.endTransmission();
+}
+
+
+void Adafruit_TSL2591::write8 (uint8_t reg)
+{
+  Wire.beginTransmission(TSL2591_ADDR);
+  Wire.write(reg);
+  Wire.endTransmission();
 }
