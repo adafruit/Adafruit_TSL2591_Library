@@ -473,7 +473,7 @@ void Adafruit_TSL2591::getSensor(sensor_t *sensor)
   sensor->min_delay   = 0;
   sensor->max_value   = 88000.0;
   sensor->min_value   = 0.0;
-  sensor->resolution  = 1.0;
+  sensor->resolution  = 0.001;
 }
 /*******************************************************/
 

@@ -8,8 +8,8 @@
 
 // Example for demonstrating the TSL2591 library - public domain!
 
-// connect SCL to analog 5
-// connect SDA to analog 4
+// connect SCL to I2C Clock
+// connect SDA to I2C Data
 // connect Vin to 3.3-5V DC
 // connect GROUND to common ground
 
@@ -31,7 +31,7 @@ void displaySensorDetails(void)
   Serial.print  (F("Unique ID:    ")); Serial.println(sensor.sensor_id);
   Serial.print  (F("Max Value:    ")); Serial.print(sensor.max_value); Serial.println(F(" lux"));
   Serial.print  (F("Min Value:    ")); Serial.print(sensor.min_value); Serial.println(F(" lux"));
-  Serial.print  (F("Resolution:   ")); Serial.print(sensor.resolution); Serial.println(F(" lux"));  
+  Serial.print  (F("Resolution:   ")); Serial.print(sensor.resolution, 4); Serial.println(F(" lux"));  
   Serial.println(F("------------------------------------"));
   Serial.println(F(""));
   delay(500);
@@ -47,13 +47,13 @@ void configureSensor(void)
   // You can change the gain on the fly, to adapt to brighter/dimmer light situations
   //tsl.setGain(TSL2591_GAIN_LOW);    // 1x gain (bright light)
   tsl.setGain(TSL2591_GAIN_MED);      // 25x gain
-  // tsl.setGain(TSL2591_GAIN_HIGH);   // 428x gain
+  //tsl.setGain(TSL2591_GAIN_HIGH);   // 428x gain
   
   // Changing the integration time gives you a longer time over which to sense light
   // longer timelines are slower, but are good in very low light situtations!
-  tsl.setTiming(TSL2591_INTEGRATIONTIME_100MS);  // shortest integration time (bright light)
+  //tsl.setTiming(TSL2591_INTEGRATIONTIME_100MS);  // shortest integration time (bright light)
   // tsl.setTiming(TSL2591_INTEGRATIONTIME_200MS);
-  // tsl.setTiming(TSL2591_INTEGRATIONTIME_300MS);
+  tsl.setTiming(TSL2591_INTEGRATIONTIME_300MS);
   // tsl.setTiming(TSL2591_INTEGRATIONTIME_400MS);
   // tsl.setTiming(TSL2591_INTEGRATIONTIME_500MS);
   // tsl.setTiming(TSL2591_INTEGRATIONTIME_600MS);  // longest integration time (dim light)
@@ -152,7 +152,7 @@ void advancedRead(void)
   Serial.print(F("IR: ")); Serial.print(ir);  Serial.print(F("  "));
   Serial.print(F("Full: ")); Serial.print(full); Serial.print(F("  "));
   Serial.print(F("Visible: ")); Serial.print(full - ir); Serial.print(F("  "));
-  Serial.print(F("Lux: ")); Serial.println(tsl.calculateLux(full, ir));
+  Serial.print(F("Lux: ")); Serial.println(tsl.calculateLux(full, ir), 6);
 }
 
 /**************************************************************************/
