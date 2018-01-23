@@ -280,11 +280,16 @@ float Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
   // cpl = (ATIME * AGAIN) / DF
   cpl = (atime * again) / TSL2591_LUX_DF;
 
-  lux1 = ( (float)ch0 - (TSL2591_LUX_COEFB * (float)ch1) ) / cpl;
-  lux2 = ( ( TSL2591_LUX_COEFC * (float)ch0 ) - ( TSL2591_LUX_COEFD * (float)ch1 ) ) / cpl;
-  lux = lux1 > lux2 ? lux1 : lux2;
+  // Original lux calculation (for reference sake)
+  //lux1 = ( (float)ch0 - (TSL2591_LUX_COEFB * (float)ch1) ) / cpl;
+  //lux2 = ( ( TSL2591_LUX_COEFC * (float)ch0 ) - ( TSL2591_LUX_COEFD * (float)ch1 ) ) / cpl;
+  //lux = lux1 > lux2 ? lux1 : lux2;
 
-  // Alternate lux calculation
+  // Alternate lux calculation 1
+  // See: https://github.com/adafruit/Adafruit_TSL2591_Library/issues/14
+  lux = ( ((float)ch0 - (float)ch1 )) * (1.0F - ((float)ch1/(float)ch0) ) / cpl;
+
+  // Alternate lux calculation 2
   //lux = ( (float)ch0 - ( 1.7F * (float)ch1 ) ) / cpl;
 
   // Signal I2C had no errors
