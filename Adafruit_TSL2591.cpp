@@ -57,7 +57,7 @@
 #include "Adafruit_TSL2591.h"
 
 /**************************************************************************/
-/*! 
+/*!
     @brief  Instantiates a new Adafruit TSL2591 class
     @param  sensorID An optional ID # so you can track this sensor, it will tag sensorEvents you create.
 */
@@ -73,7 +73,7 @@ Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID)
 }
 
 /**************************************************************************/
-/*! 
+/*!
     @brief  Setups the I2C interface and hardware, identifies if chip is found
     @returns True if a TSL2591 is found, false on any failure
 */
@@ -110,7 +110,7 @@ boolean Adafruit_TSL2591::begin(void)
 }
 
 /**************************************************************************/
-/*! 
+/*!
     @brief  Enables the chip, so it's ready to take readings
 */
 /**************************************************************************/
@@ -125,13 +125,13 @@ void Adafruit_TSL2591::enable(void)
   }
 
   // Enable the device by setting the control bit to 0x01
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE, 
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE,
 	 TSL2591_ENABLE_POWERON | TSL2591_ENABLE_AEN | TSL2591_ENABLE_AIEN | TSL2591_ENABLE_NPIEN);
 }
 
 
 /**************************************************************************/
-/*! 
+/*!
     @brief Disables the chip, so it's in power down mode
 */
 /**************************************************************************/
@@ -280,15 +280,20 @@ float Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
   // cpl = (ATIME * AGAIN) / DF
   cpl = (atime * again) / TSL2591_LUX_DF;
 
-  lux1 = ( (float)ch0 - (TSL2591_LUX_COEFB * (float)ch1) ) / cpl;
-  lux2 = ( ( TSL2591_LUX_COEFC * (float)ch0 ) - ( TSL2591_LUX_COEFD * (float)ch1 ) ) / cpl;
-  lux = lux1 > lux2 ? lux1 : lux2;
+  // Original lux calculation (for reference sake)
+  //lux1 = ( (float)ch0 - (TSL2591_LUX_COEFB * (float)ch1) ) / cpl;
+  //lux2 = ( ( TSL2591_LUX_COEFC * (float)ch0 ) - ( TSL2591_LUX_COEFD * (float)ch1 ) ) / cpl;
+  //lux = lux1 > lux2 ? lux1 : lux2;
 
-  // Alternate lux calculation
+  // Alternate lux calculation 1
+  // See: https://github.com/adafruit/Adafruit_TSL2591_Library/issues/14
+  lux = ( ((float)ch0 - (float)ch1 )) * (1.0F - ((float)ch1/(float)ch0) ) / cpl;
+
+  // Alternate lux calculation 2
   //lux = ( (float)ch0 - ( 1.7F * (float)ch1 ) ) / cpl;
 
   // Signal I2C had no errors
-  return lux > 0 ? lux : 0;		// never return a negative lux (valid) value - follows the TSL information
+  return lux;
 }
 
 /************************************************************************/
@@ -314,10 +319,14 @@ uint32_t Adafruit_TSL2591::getFullLuminosity (void)
     delay(120);
   }
 
+  // CHAN0 must be read before CHAN1
+  // See: https://forums.adafruit.com/viewtopic.php?f=19&t=124176
   uint32_t x;
+  uint16_t y;
+  y |= read16(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CHAN0_LOW);
   x = read16(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CHAN1_LOW);
   x <<= 16;
-  x |= read16(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CHAN0_LOW);
+  x |= y;
 
   disable();
 
