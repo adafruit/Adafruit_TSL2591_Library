@@ -214,7 +214,7 @@ tsl2591IntegrationTime_t Adafruit_TSL2591::getTiming()
     @brief  Calculates the visible Lux based on the two light sensors
     @param  ch0 Data from channel 0 (IR+Visible)
     @param  ch1 Data from channel 1 (IR)
-    @returns Lux, based on AMS coefficients
+    @returns Lux, based on AMS coefficients (or < 0 if overflow)
 */
 /**************************************************************************/
 float Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
@@ -227,7 +227,7 @@ float Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
   if ((ch0 == 0xFFFF) | (ch1 == 0xFFFF))
   {
     // Signal an overflow
-    return 0;
+    return -1;
   }
 
   // Note: This algorithm is based on preliminary coefficients
