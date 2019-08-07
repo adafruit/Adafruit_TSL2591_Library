@@ -47,17 +47,7 @@
 // connect Vin to 3.3-5V DC
 // connect GROUND to common ground
 
-// Interrupt thresholds and persistance
-#define TLS2591_INT_THRESHOLD_LOWER  (100)
-#define TLS2591_INT_THRESHOLD_UPPER  (2000)
-//#define TLS2591_INT_PERSIST        (TSL2591_PERSIST_ANY) // Fire on any valid change
-#define TLS2591_INT_PERSIST          (TSL2591_PERSIST_10)  // Require at least 10 samples to fire
-
 Adafruit_TSL2591 tsl = Adafruit_TSL2591();
-
-
-
-
 
 void tsl_write8(uint8_t reg, uint8_t value) {
     Wire.beginTransmission(TSL2591_ADDR);
@@ -89,6 +79,59 @@ void displaySensorDetails(void) {
 }
 
 
+void tsl_print_persist(Print &out, tsl2591Persist_t persist) {
+    switch (persist) {
+        case TSL2591_PERSIST_EVERY: {
+            out.print(F("EVERY"));
+        } break;
+        case TSL2591_PERSIST_ANY: {
+            out.print(F("ANY"));
+        } break;
+        case TSL2591_PERSIST_2: {
+            out.print(F("2"));
+        } break;
+        case TSL2591_PERSIST_3: {
+            out.print(F("3"));
+        } break;
+        case TSL2591_PERSIST_5: {
+            out.print(F("5"));
+        } break;
+        case TSL2591_PERSIST_10: {
+            out.print(F("10"));
+        } break;
+        case TSL2591_PERSIST_15: {
+            out.print(F("15"));
+        } break;
+        case TSL2591_PERSIST_20: {
+            out.print(F("20"));
+        } break;
+        case TSL2591_PERSIST_25: {
+            out.print(F("25"));
+        } break;
+        case TSL2591_PERSIST_30: {
+            out.print(F("30"));
+        } break;
+        case TSL2591_PERSIST_35: {
+            out.print(F("35"));
+        } break;
+        case TSL2591_PERSIST_40: {
+            out.print(F("40"));
+        } break;
+        case TSL2591_PERSIST_45: {
+            out.print(F("45"));
+        } break;
+        case TSL2591_PERSIST_50: {
+            out.print(F("50"));
+        } break;
+        case TSL2591_PERSIST_55: {
+            out.print(F("55"));
+        } break;
+        case TSL2591_PERSIST_60: {
+            out.print(F("60"));
+        } break;
+    }
+}
+
 void tsl_print_gain(Print &out) {
     tsl2591Gain_t gain = tsl.getGain();
     switch (gain) {
@@ -118,18 +161,19 @@ Configures the gain and integration time for the TSL2591
 /**************************************************************************/
 void configureSensor(void) {
     // You can change the gain on the fly, to adapt to brighter/dimmer light situations
-    tsl.setGain(TSL2591_GAIN_LOW);    // 1x gain (bright light)
-    // tsl.setGain(TSL2591_GAIN_MED);      // 25x gain
+    // tsl.setGain(TSL2591_GAIN_LOW);    // 1x gain (bright light)
+    // tsl.setGain(TSL2591_GAIN_MED);    // 25x gain
     // tsl.setGain(TSL2591_GAIN_HIGH);   // 428x gain
+    tsl.setGain(TSL2591_GAIN_MAX);    // 9876x gain
 
     // Changing the integration time gives you a longer time over which to sense light
     // longer timelines are slower, but are good in very low light situtations!
     // tsl.setTiming(TSL2591_INTEGRATIONTIME_100MS);  // shortest integration time (bright light)
     // tsl.setTiming(TSL2591_INTEGRATIONTIME_200MS);
     // tsl.setTiming(TSL2591_INTEGRATIONTIME_300MS);
-    tsl.setTiming(TSL2591_INTEGRATIONTIME_400MS);
+    // tsl.setTiming(TSL2591_INTEGRATIONTIME_400MS);
     // tsl.setTiming(TSL2591_INTEGRATIONTIME_500MS);
-    // tsl.setTiming(TSL2591_INTEGRATIONTIME_600MS);  // longest integration time (dim light)
+    tsl.setTiming(TSL2591_INTEGRATIONTIME_600MS);  // longest integration time (dim light)
 
     /* Display the gain and integration time for reference sake */
     Serial.println("------------------------------------");
@@ -143,19 +187,57 @@ void configureSensor(void) {
     Serial.println("------------------------------------");
     Serial.println("");
 
-    /* Setup the SW interrupt to trigger between 100 and 2000 */
-    /* Threshold values are defined at the top of this sketch */
+
+    // AINT persistance
+    // TSL2591_PERSIST_EVERY → Every ALS cycle generates an interrupt
+    // TSL2591_PERSIST_ANY → Fire on Any value outside of threshold range
+    // TSL2591_PERSIST_2 → Require at least 2 samples outside of range to fire
+    // TSL2591_PERSIST_3 → Require at least 3 samples outside of range to fire
+    // TSL2591_PERSIST_5 → Require at least 5 samples outside of range to fire
+    // TSL2591_PERSIST_10 → Require at least 10 samples outside of range to fire
+    // TSL2591_PERSIST_15 → Require at least 15 samples outside of range to fire
+    // TSL2591_PERSIST_20 → Require at least 20 samples outside of range to fire
+    // TSL2591_PERSIST_nn → in steps of 5
+    // TSL2591_PERSIST_60 → Require at least 60 samples outside of range to fire
+
+    // this combination would be helpfull to:
+    // AINT: set a custom range with some smoothing
+    // NPINTR: out of range → check gain and integrationtime
+    // const uint16_t AINT_threshold_lower = 50;
+    // const uint16_t AINT_threshold_upper = 3000;
+    // const tsl2591Persist_t AINT_persist = TSL2591_PERSIST_20;
+    // const uint16_t NPINTR_threshold_lower = 1;
+    // const uint16_t NPINTR_threshold_upper = 0xFFFF-1;
+
+    // this combination would be helpfull to:
+    // AINT: a new value is available
+    // NPINTR: nearly out of range → check gain and integrationtime
+    const uint16_t AINT_threshold_lower = 0;
+    const uint16_t AINT_threshold_upper = 0;
+    const tsl2591Persist_t AINT_persist = TSL2591_PERSIST_EVERY;
+    const uint16_t NPINTR_threshold_lower = 30;
+    const uint16_t NPINTR_threshold_upper = 65500;
+
     tsl.clearInterrupt();
-    // tsl.registerInterrupt(TLS2591_INT_THRESHOLD_LOWER,
-    //     TLS2591_INT_THRESHOLD_UPPER,
-    //     TLS2591_INT_PERSIST);
+    tsl.setALSInterruptThresholds(
+        AINT_threshold_lower, AINT_threshold_upper, AINT_persist);
+    tsl.setNPInterruptThresholds(
+        NPINTR_threshold_lower, NPINTR_threshold_upper);
+    tsl.clearInterrupt();
 
     /* Display the interrupt threshold window */
-    Serial.print("Interrupt Threshold Window: ");
-    Serial.print(TLS2591_INT_THRESHOLD_LOWER, DEC);
+    Serial.print("AINT Threshold Window: ");
+    Serial.print(AINT_threshold_lower, DEC);
     Serial.print(" to ");
-    Serial.println(TLS2591_INT_THRESHOLD_UPPER, DEC);
-    Serial.println("");
+    Serial.print(AINT_threshold_upper, DEC);
+    Serial.print(" with persist ");
+    tsl_print_persist(Serial, AINT_persist);
+    Serial.println();
+    Serial.print("NPINTR Threshold Window: ");
+    Serial.print(NPINTR_threshold_lower, DEC);
+    Serial.print(" to ");
+    Serial.print(NPINTR_threshold_upper, DEC);
+    Serial.println();
 }
 
 
@@ -238,23 +320,24 @@ void printStatus(void) {
     if (x & TSL2591_STATUS_AVALID) {
         Serial.print("AVALID");
     } else {
-        Serial.print("  .   ");
+        Serial.print(".     ");
     }
     Serial.print(" ");
     if (x & TSL2591_STATUS_AINT) {
         Serial.print("AINT");
     } else {
-        Serial.print(" .  ");
+        Serial.print(".   ");
     }
     Serial.print(" ");
     if (x & TSL2591_STATUS_NPINTR) {
         Serial.print("NPINTR");
     } else {
-        Serial.print("  .   ");
+        Serial.print(".     ");
     }
     Serial.print("  ");
 
-    // More advanced data read example. Read 32 bits with top 16 bits IR, bottom 16 bits full spectrum
+    // More advanced data read example.
+    // Read 32 bits with top 16 bits IR, bottom 16 bits full spectrum
     // That way you can do whatever math and comparisons you want!
     uint32_t lum = tsl.getFullLuminosity();
     uint16_t ir, full;
@@ -264,7 +347,7 @@ void printStatus(void) {
     Serial.print("IR: "); Serial.print(ir);  Serial.print("  ");
     Serial.print("Full: "); Serial.print(full); Serial.print("  ");
     Serial.print("Visible: "); Serial.print(full - ir); Serial.print("  ");
-    Serial.print("Lux: "); Serial.print(tsl.calculateLux(full, ir));
+    Serial.print("Lux: "); Serial.print(tsl.calculateLux(full, ir), 4);
     // Serial.print("  ");
     Serial.println();
 

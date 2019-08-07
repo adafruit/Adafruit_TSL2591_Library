@@ -384,13 +384,13 @@ uint16_t Adafruit_TSL2591::getLuminosity (uint8_t channel)
 
 /************************************************************************/
 /*!
-    @brief  Set up the interrupt to go off when light level is outside the lower/upper range.
+    @brief  set up the ALS interrupt thresholds (interrupt generated when light level is outside the lower/upper range for long enough).
     @param  lowerThreshold Raw light data reading level that is the lower value threshold for interrupt
     @param  upperThreshold Raw light data reading level that is the higher value threshold for interrupt
     @param  persist How many counts we must be outside range for interrupt to fire, default is any single value
 */
 /**************************************************************************/
-void Adafruit_TSL2591::registerInterrupt(uint16_t lowerThreshold, uint16_t upperThreshold, tsl2591Persist_t persist = TSL2591_PERSIST_ANY)
+void Adafruit_TSL2591::setALSInterruptThresholds(uint16_t lowerThreshold, uint16_t upperThreshold, tsl2591Persist_t persist = TSL2591_PERSIST_ANY)
 {
   if (!_initialized) {
     if (!begin()) {
@@ -407,6 +407,34 @@ void Adafruit_TSL2591::registerInterrupt(uint16_t lowerThreshold, uint16_t upper
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AILTH, lowerThreshold >> 8);
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AIHTL, upperThreshold);
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AIHTH, upperThreshold >> 8);
+  if (!was_enabled) {
+    disable();
+  }
+}
+
+/************************************************************************/
+/*!
+    @brief  set up the NP interrupt thresholds (interrupt generated immediately after conversion when light level is outside the lower/upper range).
+    @param  lowerThreshold Raw light data reading level that is the lower value threshold for interrupt
+    @param  upperThreshold Raw light data reading level that is the higher value threshold for interrupt
+*/
+/**************************************************************************/
+void Adafruit_TSL2591::setNPInterruptThresholds(uint16_t lowerThreshold, uint16_t upperThreshold)
+{
+  if (!_initialized) {
+    if (!begin()) {
+      return;
+    }
+  }
+
+  boolean was_enabled = _enabled;
+  if (!_enabled) {
+    enable();
+  }
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAILTL, lowerThreshold);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAILTH, lowerThreshold >> 8);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAIHTL, upperThreshold);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAIHTH, upperThreshold >> 8);
   if (!was_enabled) {
     disable();
   }
