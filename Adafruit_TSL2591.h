@@ -50,6 +50,10 @@
 #define TSL2591_ENABLE_AIEN       (0x10)    ///< ALS Interrupt Enable. When asserted permits ALS interrupts to be generated, subject to the persist filter.
 #define TSL2591_ENABLE_NPIEN      (0x80)    ///< No Persist Interrupt Enable. When asserted NP Threshold conditions will generate an interrupt, bypassing the persist filter
 
+#define TSL2591_STATUS_AVALID     (0b00000001) ///< Flag AVALID in STATUS register
+#define TSL2591_STATUS_AINT       (0b00010000) ///< Flag AINT in STATUS register
+#define TSL2591_STATUS_NPINTR     (0b00100000) ///< Flag NPINTR in STATUS register
+
 #define TSL2591_LUX_DF            (408.0F) ///< Lux cooefficient
 #define TSL2591_LUX_COEFB         (1.64F)  ///< CH0 coefficient
 #define TSL2591_LUX_COEFC         (0.59F)  ///< CH1 coefficient A
