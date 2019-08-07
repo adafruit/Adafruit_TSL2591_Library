@@ -99,6 +99,9 @@ void setup(void)
   if (tsl.begin())
   {
     Serial.println(F("Found a TSL2591 sensor"));
+    // if you want faster responses enable the sensor continously:
+    // (this needs more power..)
+    tsl.enable();
   }
   else
   {
@@ -140,6 +143,7 @@ void simpleRead(void)
     Show how to read IR and Full Spectrum at once and convert to lux
 */
 /**************************************************************************/
+uint32_t last_action = 0;
 void advancedRead(void)
 {
   // More advanced data read example. Read 32 bits with top 16 bits IR, bottom 16 bits full spectrum
@@ -148,7 +152,14 @@ void advancedRead(void)
   uint16_t ir, full;
   ir = lum >> 16;
   full = lum & 0xFFFF;
-  Serial.print(F("[ ")); Serial.print(millis()); Serial.print(F(" ms ] "));
+
+  uint32_t duration = millis() - last_action;
+  last_action = millis();
+  Serial.print(F("[ "));
+    Serial.print(millis());
+    Serial.print(F(" ms -> "));
+    Serial.print(duration);
+    Serial.print(F(" ms ] "));
   Serial.print(F("IR: ")); Serial.print(ir);  Serial.print(F("  "));
   Serial.print(F("Full: ")); Serial.print(full); Serial.print(F("  "));
   Serial.print(F("Visible: ")); Serial.print(full - ir); Serial.print(F("  "));
