@@ -1,17 +1,17 @@
 /**************************************************************************/
-/*! 
+/*!
     @file     Adafruit_TSL2591.h
     @author   KT0WN (adafruit.com)
 
     This is a library for the Adafruit TSL2591 breakout board
-    This library works with the Adafruit TSL2591 breakout 
+    This library works with the Adafruit TSL2591 breakout
     ----> https://www.adafruit.com/products/1980
-	
-    Check out the links above for our tutorials and wiring diagrams 
+
+    Check out the links above for our tutorials and wiring diagrams
     These chips use I2C to communicate
- 
-    Adafruit invests time and resources providing this open source code, 
-    please support Adafruit and open-source hardware by purchasing 
+
+    Adafruit invests time and resources providing this open source code,
+    please support Adafruit and open-source hardware by purchasing
     products from Adafruit!
 */
 /**************************************************************************/
@@ -51,7 +51,7 @@
 #define TSL2591_ENABLE_NPIEN      (0x80)    ///< No Persist Interrupt Enable. When asserted NP Threshold conditions will generate an interrupt, bypassing the persist filter
 
 #define TSL2591_LUX_DF            (408.0F) ///< Lux cooefficient
-#define TSL2591_LUX_COEFB         (1.64F)  ///< CH0 coefficient 
+#define TSL2591_LUX_COEFB         (1.64F)  ///< CH0 coefficient
 #define TSL2591_LUX_COEFC         (0.59F)  ///< CH1 coefficient A
 #define TSL2591_LUX_COEFD         (0.86F)  ///< CH2 coefficient B
 
@@ -125,7 +125,7 @@ tsl2591Gain_t;
 
 
 /**************************************************************************/
-/*! 
+/*!
     @brief  Class that stores state and functions for interacting with TSL2591 Light Sensor
 */
 /**************************************************************************/
@@ -133,7 +133,7 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
 {
  public:
   Adafruit_TSL2591(int32_t sensorID = -1);
-  
+
   boolean   begin   ( void );
   void      enable  ( void );
   void      disable ( void );
@@ -151,8 +151,8 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
   void    clearInterrupt(void);
   void    registerInterrupt(uint16_t lowerThreshold, uint16_t upperThreshold, tsl2591Persist_t persist);
   uint8_t getStatus();
-  
-  /* Unified Sensor API Functions */  
+
+  /* Unified Sensor API Functions */
   bool getEvent  ( sensors_event_t* );
   void getSensor ( sensor_t* );
 

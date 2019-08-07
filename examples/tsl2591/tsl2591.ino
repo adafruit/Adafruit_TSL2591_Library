@@ -31,7 +31,7 @@ void displaySensorDetails(void)
   Serial.print  (F("Unique ID:    ")); Serial.println(sensor.sensor_id);
   Serial.print  (F("Max Value:    ")); Serial.print(sensor.max_value); Serial.println(F(" lux"));
   Serial.print  (F("Min Value:    ")); Serial.print(sensor.min_value); Serial.println(F(" lux"));
-  Serial.print  (F("Resolution:   ")); Serial.print(sensor.resolution, 4); Serial.println(F(" lux"));  
+  Serial.print  (F("Resolution:   ")); Serial.print(sensor.resolution, 4); Serial.println(F(" lux"));
   Serial.println(F("------------------------------------"));
   Serial.println(F(""));
   delay(500);
@@ -48,7 +48,7 @@ void configureSensor(void)
   //tsl.setGain(TSL2591_GAIN_LOW);    // 1x gain (bright light)
   tsl.setGain(TSL2591_GAIN_MED);      // 25x gain
   //tsl.setGain(TSL2591_GAIN_HIGH);   // 428x gain
-  
+
   // Changing the integration time gives you a longer time over which to sense light
   // longer timelines are slower, but are good in very low light situtations!
   //tsl.setTiming(TSL2591_INTEGRATIONTIME_100MS);  // shortest integration time (bright light)
@@ -58,7 +58,7 @@ void configureSensor(void)
   // tsl.setTiming(TSL2591_INTEGRATIONTIME_500MS);
   // tsl.setTiming(TSL2591_INTEGRATIONTIME_600MS);  // longest integration time (dim light)
 
-  /* Display the gain and integration time for reference sake */  
+  /* Display the gain and integration time for reference sake */
   Serial.println(F("------------------------------------"));
   Serial.print  (F("Gain:         "));
   tsl2591Gain_t gain = tsl.getGain();
@@ -78,7 +78,7 @@ void configureSensor(void)
       break;
   }
   Serial.print  (F("Timing:       "));
-  Serial.print((tsl.getTiming() + 1) * 100, DEC); 
+  Serial.print((tsl.getTiming() + 1) * 100, DEC);
   Serial.println(F(" ms"));
   Serial.println(F("------------------------------------"));
   Serial.println(F(""));
@@ -90,25 +90,25 @@ void configureSensor(void)
     Program entry point for the Arduino sketch
 */
 /**************************************************************************/
-void setup(void) 
+void setup(void)
 {
   Serial.begin(9600);
-  
+
   Serial.println(F("Starting Adafruit TSL2591 Test!"));
-  
-  if (tsl.begin()) 
+
+  if (tsl.begin())
   {
     Serial.println(F("Found a TSL2591 sensor"));
-  } 
-  else 
+  }
+  else
   {
     Serial.println(F("No sensor found ... check your wiring?"));
     while (1);
   }
-    
+
   /* Display some basic information on this sensor */
   displaySensorDetails();
-  
+
   /* Configure the sensor */
   configureSensor();
 
@@ -123,7 +123,7 @@ void setup(void)
 /**************************************************************************/
 void simpleRead(void)
 {
-  // Simple data read example. Just read the infrared, fullspecrtrum diode 
+  // Simple data read example. Just read the infrared, fullspecrtrum diode
   // or 'visible' (difference between the two) channels.
   // This can take 100-600 milliseconds! Uncomment whichever of the following you want to read
   uint16_t x = tsl.getLuminosity(TSL2591_VISIBLE);
@@ -162,14 +162,14 @@ void advancedRead(void)
 /**************************************************************************/
 void unifiedSensorAPIRead(void)
 {
-  /* Get a new sensor event */ 
+  /* Get a new sensor event */
   sensors_event_t event;
   tsl.getEvent(&event);
- 
+
   /* Display the results (light is measured in lux) */
   Serial.print(F("[ ")); Serial.print(event.timestamp); Serial.print(F(" ms ] "));
   if ((event.light == 0) |
-      (event.light > 4294966000.0) | 
+      (event.light > 4294966000.0) |
       (event.light <-4294966000.0))
   {
     /* If event.light = 0 lux the sensor is probably saturated */
@@ -190,11 +190,11 @@ void unifiedSensorAPIRead(void)
     should go here)
 */
 /**************************************************************************/
-void loop(void) 
-{ 
-  //simpleRead(); 
+void loop(void)
+{
+  //simpleRead();
   advancedRead();
   // unifiedSensorAPIRead();
-  
+
   delay(500);
 }

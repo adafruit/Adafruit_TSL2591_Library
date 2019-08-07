@@ -4,35 +4,35 @@
 
 /*  This example shows how the interrupt system on the TLS2591
  *  can be used to detect a meaningful change in light levels.
- *  
- *  Two thresholds can be set: 
- *  
+ *
+ *  Two thresholds can be set:
+ *
  *  Lower Threshold - Any light sample on CHAN0 below this value
  *                    will trigger an interrupt
  *  Upper Threshold - Any light sample on CHAN0 above this value
  *                    will trigger an interrupt
- *                    
+ *
  *  If CHAN0 (full light) crosses below the low threshold specified,
  *  or above the higher threshold, an interrupt is asserted on the interrupt
  *  pin. The use of the HW pin is optional, though, since the change can
  *  also be detected in software by looking at the status byte via
  *  tsl.getStatus().
- *  
+ *
  *  An optional third parameter can be used in the .registerInterrupt
  *  function to indicate the number of samples that must stay outside
  *  the threshold window before the interrupt fires, providing some basic
  *  debouncing of light level data.
- *  
+ *
  *  For example, the following code will fire an interrupt on any and every
  *  sample outside the window threshold (meaning a sample below 100 or above
  *  1500 on CHAN0 or FULL light):
- *  
+ *
  *    tsl.registerInterrupt(100, 1500, TSL2591_PERSIST_ANY);
- *  
+ *
  *  This code would require five consecutive changes before the interrupt
  *  fires though (see tls2591Persist_t in Adafruit_TLS2591.h for possible
  *  values):
- *  
+ *
  *    tsl.registerInterrupt(100, 1500, TSL2591_PERSIST_5);
  */
 
@@ -134,7 +134,7 @@ void configureSensor(void)
   Serial.print("Interrupt Threshold Window: ");
   Serial.print(TLS2591_INT_THRESHOLD_LOWER, DEC);
   Serial.print(" to ");
-  Serial.println(TLS2591_INT_THRESHOLD_UPPER, DEC);  
+  Serial.println(TLS2591_INT_THRESHOLD_UPPER, DEC);
   Serial.println("");
 }
 
