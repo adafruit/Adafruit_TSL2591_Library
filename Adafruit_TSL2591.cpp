@@ -65,6 +65,7 @@
 Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID)
 {
   _initialized = false;
+  _enabled = false;
   _integration = TSL2591_INTEGRATIONTIME_100MS;
   _gain        = TSL2591_GAIN_MED;
   _sensorID    = sensorID;
@@ -105,6 +106,8 @@ boolean Adafruit_TSL2591::begin(void)
 
   // Note: by default, the device is in power down mode on bootup
   disable();
+  // you can enable it with
+  // enable();
 
   return true;
 }
@@ -127,6 +130,7 @@ void Adafruit_TSL2591::enable(void)
   // Enable the device by setting the control bit to 0x01
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE,
 	 TSL2591_ENABLE_POWERON | TSL2591_ENABLE_AEN | TSL2591_ENABLE_AIEN | TSL2591_ENABLE_NPIEN);
+  _enabled = true;
 }
 
 
@@ -145,6 +149,7 @@ void Adafruit_TSL2591::disable(void)
 
   // Disable the device by setting the control bit to 0x00
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE, TSL2591_ENABLE_POWEROFF);
+  _enabled = false;
 }
 
 /************************************************************************/
@@ -161,10 +166,15 @@ void Adafruit_TSL2591::setGain(tsl2591Gain_t gain)
     }
   }
 
-  enable();
+  boolean was_enabled = _enabled;
+  if (!_enabled) {
+    enable();
+  }
   _gain = gain;
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CONTROL, _integration | _gain);
-  disable();
+  if (!was_enabled) {
+    disable();
+  }
 }
 
 /************************************************************************/
@@ -192,10 +202,15 @@ void Adafruit_TSL2591::setTiming(tsl2591IntegrationTime_t integration)
     }
   }
 
-  enable();
+  boolean was_enabled = _enabled;
+  if (!_enabled) {
+    enable();
+  }
   _integration = integration;
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CONTROL, _integration | _gain);
-  disable();
+  if (!was_enabled) {
+    disable();
+  }
 }
 
 /************************************************************************/
@@ -310,13 +325,14 @@ uint32_t Adafruit_TSL2591::getFullLuminosity (void)
     }
   }
 
-  // Enable the device
-  enable();
-
-  // Wait x ms for ADC to complete
-  for (uint8_t d=0; d<=_integration; d++)
-  {
-    delay(120);
+  boolean was_enabled = _enabled;
+  if (!_enabled) {
+    enable();
+    // Wait x ms for ADC to complete
+    for (uint8_t d=0; d<=_integration; d++)
+    {
+      delay(120);
+    }
   }
 
   // CHAN0 must be read before CHAN1
@@ -328,7 +344,9 @@ uint32_t Adafruit_TSL2591::getFullLuminosity (void)
   x <<= 16;
   x |= y;
 
-  disable();
+  if (!was_enabled) {
+    disable();
+  }
 
   return x;
 }
@@ -380,13 +398,18 @@ void Adafruit_TSL2591::registerInterrupt(uint16_t lowerThreshold, uint16_t upper
     }
   }
 
-  enable();
+  boolean was_enabled = _enabled;
+  if (!_enabled) {
+    enable();
+  }
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_PERSIST_FILTER,  persist);
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AILTL, lowerThreshold);
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AILTH, lowerThreshold >> 8);
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AIHTL, upperThreshold);
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AIHTH, upperThreshold >> 8);
-  disable();
+  if (!was_enabled) {
+    disable();
+  }
 }
 
 /************************************************************************/
@@ -402,9 +425,14 @@ void Adafruit_TSL2591::clearInterrupt()
     }
   }
 
-  enable();
+  boolean was_enabled = _enabled;
+  if (!_enabled) {
+    enable();
+  }
   write8(TSL2591_CLEAR_INT);
-  disable();
+  if (!was_enabled) {
+    disable();
+  }
 }
 
 
@@ -423,10 +451,15 @@ uint8_t Adafruit_TSL2591::getStatus(void)
   }
 
   // Enable the device
-  enable();
+  boolean was_enabled = _enabled;
+  if (!_enabled) {
+    enable();
+  }
   uint8_t x;
   x = read8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_DEVICE_STATUS);
-  disable();
+  if (!was_enabled) {
+    disable();
+  }
   return x;
 }
 
