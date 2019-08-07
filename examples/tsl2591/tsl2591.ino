@@ -157,9 +157,10 @@ void advancedRead(void)
   last_action = millis();
   Serial.print(F("[ "));
     Serial.print(millis());
-    Serial.print(F(" ms -> "));
+    Serial.print(F(" ms ]"));
+    Serial.print(F(" ("));
     Serial.print(duration);
-    Serial.print(F(" ms ] "));
+    Serial.print(F(" ms) "));
   Serial.print(F("IR: ")); Serial.print(ir);  Serial.print(F("  "));
   Serial.print(F("Full: ")); Serial.print(full); Serial.print(F("  "));
   Serial.print(F("Visible: ")); Serial.print(full - ir); Serial.print(F("  "));
