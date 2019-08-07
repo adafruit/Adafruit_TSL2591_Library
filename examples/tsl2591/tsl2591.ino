@@ -99,7 +99,7 @@ void setup(void)
   if (tsl.begin())
   {
     Serial.println(F("Found a TSL2591 sensor"));
-    // if you want faster responses enable the sensor continously:
+    // if you want faster responses enable the sensor continuously:
     // (this needs more power..)
     tsl.enable();
   }
