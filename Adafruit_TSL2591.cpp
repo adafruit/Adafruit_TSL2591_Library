@@ -339,7 +339,7 @@ uint32_t Adafruit_TSL2591::getFullLuminosity (void)
   // See: https://forums.adafruit.com/viewtopic.php?f=19&t=124176
   uint32_t x;
   uint16_t y;
-  y |= read16(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CHAN0_LOW);
+  y = read16(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CHAN0_LOW);
   x = read16(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CHAN1_LOW);
   x <<= 16;
   x |= y;
