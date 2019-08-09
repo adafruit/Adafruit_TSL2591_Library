@@ -18,7 +18,7 @@
  *  also be detected in software by looking at the status byte via
  *  tsl.getStatus().
  *
- *  An optional third parameter can be used in the .registerInterrupt
+ *  An optional third parameter can be used in the .setALSInterruptThresholds
  *  function to indicate the number of samples that must stay outside
  *  the threshold window before the interrupt fires, providing some basic
  *  debouncing of light level data.
@@ -27,13 +27,13 @@
  *  sample outside the window threshold (meaning a sample below 100 or above
  *  1500 on CHAN0 or FULL light):
  *
- *    tsl.registerInterrupt(100, 1500, TSL2591_PERSIST_ANY);
+ *    tsl.setALSInterruptThresholds(100, 1500, TSL2591_PERSIST_ANY);
  *
  *  This code would require five consecutive changes before the interrupt
  *  fires though (see tls2591Persist_t in Adafruit_TLS2591.h for possible
  *  values):
  *
- *    tsl.registerInterrupt(100, 1500, TSL2591_PERSIST_5);
+ *    tsl.setALSInterruptThresholds(100, 1500, TSL2591_PERSIST_5);
  */
 
 #include <Wire.h>
@@ -126,7 +126,7 @@ void configureSensor(void)
   /* Setup the SW interrupt to trigger between 100 and 1500 lux */
   /* Threshold values are defined at the top of this sketch */
   tsl.clearInterrupt();
-  tsl.registerInterrupt(TLS2591_INT_THRESHOLD_LOWER,
+  tsl.setALSInterruptThresholds(TLS2591_INT_THRESHOLD_LOWER,
                         TLS2591_INT_THRESHOLD_UPPER,
                         TLS2591_INT_PERSIST);
 
