@@ -98,27 +98,13 @@ void configureSensor(void)
   // tsl.setTiming(TSL2591_INTEGRATIONTIME_500MS);
   // tsl.setTiming(TSL2591_INTEGRATIONTIME_600MS);  // longest integration time (dim light)
 
-  /* Display the gain and integration time for reference sake */
+  // Display the gain and integration time for reference sake
   Serial.println("------------------------------------");
   Serial.print  ("Gain:         ");
-  tsl2591Gain_t gain = tsl.getGain();
-  switch (gain)
-  {
-    case TSL2591_GAIN_LOW:
-      Serial.println("1x (Low)");
-      break;
-    case TSL2591_GAIN_MED:
-      Serial.println("25x (Medium)");
-      break;
-    case TSL2591_GAIN_HIGH:
-      Serial.println("428x (High)");
-      break;
-    case TSL2591_GAIN_MAX:
-      Serial.println("9876x (Max)");
-      break;
-  }
+  tsl.printGain(Serial);
+  Serial.println();
   Serial.print  ("Timing:       ");
-  Serial.print((tsl.getTiming() + 1) * 100, DEC);
+  Serial.print(tsl.getTimingInMS());
   Serial.println(" ms");
   Serial.println("------------------------------------");
   Serial.println("");

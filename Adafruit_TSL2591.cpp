@@ -190,6 +190,41 @@ tsl2591Gain_t Adafruit_TSL2591::getGain()
 
 /************************************************************************/
 /*!
+    @brief  Print gain value in Human readable form
+    @param  out {@link Print} reference to use for printing
+    @param  gain {@link tsl2591Gain_t} gain value
+*/
+/**************************************************************************/
+void Adafruit_TSL2591::printGain(Print &out, tsl2591Gain_t gain)
+{
+    switch (gain) {
+        case TSL2591_GAIN_LOW:
+        out.print(F("1x (Low)"));
+        break;
+        case TSL2591_GAIN_MED:
+        out.print(F("25x (Medium)"));
+        break;
+        case TSL2591_GAIN_HIGH:
+        out.print(F("428x (High)"));
+        break;
+        case TSL2591_GAIN_MAX:
+        out.print(F("9876x (Max)"));
+        break;
+    }
+}
+
+/************************************************************************/
+/*!
+    @brief  Print current gain value in Human readable form
+    @param  out {@link Print} reference to use for printing
+*/
+/**************************************************************************/
+void Adafruit_TSL2591::printGain(Print &out) {
+    printGain(out, getGain());
+}
+
+/************************************************************************/
+/*!
     @brief  Setter for sensor integration time setting
     @param integration {@link tsl2591IntegrationTime_t} integration time setting
 */
@@ -222,6 +257,17 @@ void Adafruit_TSL2591::setTiming(tsl2591IntegrationTime_t integration)
 tsl2591IntegrationTime_t Adafruit_TSL2591::getTiming()
 {
   return _integration;
+}
+
+/************************************************************************/
+/*!
+    @brief  get sensor integration time in milliseconds
+    @returns integration time in milliseconds
+*/
+/**************************************************************************/
+uint16_t Adafruit_TSL2591::getTimingInMS()
+{
+  return ((_integration + 1) * 100);
 }
 
 /************************************************************************/
@@ -503,6 +549,105 @@ uint8_t Adafruit_TSL2591::getStatus(void)
   }
   return x;
 }
+
+/************************************************************************/
+/*!
+    @brief  Print persistance value in Human readable form
+    @param  out {@link Print} reference to use for printing
+    @param  gain {@link tsl2591Persist_t} persistance value
+*/
+/**************************************************************************/
+uint8_t Adafruit_TSL2591::convertPersistanceToInt(tsl2591Persist_t persistance)
+{
+    uint8_t result = 0;
+    switch (persistance) {
+        case TSL2591_PERSIST_EVERY: {
+            result = 0;
+        } break;
+        case TSL2591_PERSIST_ANY: {
+            result = 1;
+        } break;
+        case TSL2591_PERSIST_2: {
+            result = 2;
+        } break;
+        case TSL2591_PERSIST_3: {
+            result = 3;
+        } break;
+        case TSL2591_PERSIST_5: {
+            result = 5;
+        } break;
+        case TSL2591_PERSIST_10: {
+            result = 10;
+        } break;
+        case TSL2591_PERSIST_15: {
+            result = 15;
+        } break;
+        case TSL2591_PERSIST_20: {
+            result = 20;
+        } break;
+        case TSL2591_PERSIST_25: {
+            result = 25;
+        } break;
+        case TSL2591_PERSIST_30: {
+            result = 30;
+        } break;
+        case TSL2591_PERSIST_35: {
+            result = 35;
+        } break;
+        case TSL2591_PERSIST_40: {
+            result = 40;
+        } break;
+        case TSL2591_PERSIST_45: {
+            result = 45;
+        } break;
+        case TSL2591_PERSIST_50: {
+            result = 50;
+        } break;
+        case TSL2591_PERSIST_55: {
+            result = 55;
+        } break;
+        case TSL2591_PERSIST_60: {
+            result = 60;
+        } break;
+    }
+    return result;
+}
+
+/************************************************************************/
+/*!
+    @brief  Print persistance value in Human readable form
+    @param  out {@link Print} reference to use for printing
+    @param  gain {@link tsl2591Persist_t} persistance value
+*/
+/**************************************************************************/
+void Adafruit_TSL2591::printPersistance(Print &out, tsl2591Persist_t persistance)
+{
+    switch (persistance) {
+        case TSL2591_PERSIST_EVERY: {
+            out.print(F("EVERY"));
+        } break;
+        case TSL2591_PERSIST_ANY: {
+            out.print(F("ANY"));
+        } break;
+        case TSL2591_PERSIST_2:
+        case TSL2591_PERSIST_3:
+        case TSL2591_PERSIST_5:
+        case TSL2591_PERSIST_10:
+        case TSL2591_PERSIST_15:
+        case TSL2591_PERSIST_20:
+        case TSL2591_PERSIST_25:
+        case TSL2591_PERSIST_30:
+        case TSL2591_PERSIST_35:
+        case TSL2591_PERSIST_40:
+        case TSL2591_PERSIST_45:
+        case TSL2591_PERSIST_50:
+        case TSL2591_PERSIST_55:
+        case TSL2591_PERSIST_60: {
+            out.print(convertPersistanceToInt(persistance));
+        } break;
+    }
+}
+
 
 /************************************************************************/
 /*!

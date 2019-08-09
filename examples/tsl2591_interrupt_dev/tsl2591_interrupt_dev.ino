@@ -78,82 +78,6 @@ void displaySensorDetails(void) {
     delay(500);
 }
 
-
-void tsl_print_persist(Print &out, tsl2591Persist_t persist) {
-    switch (persist) {
-        case TSL2591_PERSIST_EVERY: {
-            out.print(F("EVERY"));
-        } break;
-        case TSL2591_PERSIST_ANY: {
-            out.print(F("ANY"));
-        } break;
-        case TSL2591_PERSIST_2: {
-            out.print(F("2"));
-        } break;
-        case TSL2591_PERSIST_3: {
-            out.print(F("3"));
-        } break;
-        case TSL2591_PERSIST_5: {
-            out.print(F("5"));
-        } break;
-        case TSL2591_PERSIST_10: {
-            out.print(F("10"));
-        } break;
-        case TSL2591_PERSIST_15: {
-            out.print(F("15"));
-        } break;
-        case TSL2591_PERSIST_20: {
-            out.print(F("20"));
-        } break;
-        case TSL2591_PERSIST_25: {
-            out.print(F("25"));
-        } break;
-        case TSL2591_PERSIST_30: {
-            out.print(F("30"));
-        } break;
-        case TSL2591_PERSIST_35: {
-            out.print(F("35"));
-        } break;
-        case TSL2591_PERSIST_40: {
-            out.print(F("40"));
-        } break;
-        case TSL2591_PERSIST_45: {
-            out.print(F("45"));
-        } break;
-        case TSL2591_PERSIST_50: {
-            out.print(F("50"));
-        } break;
-        case TSL2591_PERSIST_55: {
-            out.print(F("55"));
-        } break;
-        case TSL2591_PERSIST_60: {
-            out.print(F("60"));
-        } break;
-    }
-}
-
-void tsl_print_gain(Print &out) {
-    tsl2591Gain_t gain = tsl.getGain();
-    switch (gain) {
-        case TSL2591_GAIN_LOW:
-        out.print(F("1x (Low)"));
-        break;
-        case TSL2591_GAIN_MED:
-        out.print(F("25x (Medium)"));
-        break;
-        case TSL2591_GAIN_HIGH:
-        out.print(F("428x (High)"));
-        break;
-        case TSL2591_GAIN_MAX:
-        out.print(F("9876x (Max)"));
-        break;
-    }
-}
-
-void tsl_print_timming(Print &out) {
-    out.print((tsl.getTiming() + 1) * 100, DEC);
-}
-
 /**************************************************************************/
 /*
 Configures the gain and integration time for the TSL2591
@@ -161,28 +85,27 @@ Configures the gain and integration time for the TSL2591
 /**************************************************************************/
 void configureSensor(void) {
     // You can change the gain on the fly, to adapt to brighter/dimmer light situations
-    // tsl.setGain(TSL2591_GAIN_LOW);    // 1x gain (bright light)
+    tsl.setGain(TSL2591_GAIN_LOW);    // 1x gain (bright light)
     // tsl.setGain(TSL2591_GAIN_MED);    // 25x gain
     // tsl.setGain(TSL2591_GAIN_HIGH);   // 428x gain
-    tsl.setGain(TSL2591_GAIN_MAX);    // 9876x gain
+    // tsl.setGain(TSL2591_GAIN_MAX);    // 9876x gain
 
     // Changing the integration time gives you a longer time over which to sense light
     // longer timelines are slower, but are good in very low light situtations!
-    // tsl.setTiming(TSL2591_INTEGRATIONTIME_100MS);  // shortest integration time (bright light)
+    tsl.setTiming(TSL2591_INTEGRATIONTIME_100MS);  // shortest integration time (bright light)
     // tsl.setTiming(TSL2591_INTEGRATIONTIME_200MS);
     // tsl.setTiming(TSL2591_INTEGRATIONTIME_300MS);
     // tsl.setTiming(TSL2591_INTEGRATIONTIME_400MS);
     // tsl.setTiming(TSL2591_INTEGRATIONTIME_500MS);
-    tsl.setTiming(TSL2591_INTEGRATIONTIME_600MS);  // longest integration time (dim light)
+    // tsl.setTiming(TSL2591_INTEGRATIONTIME_600MS);  // longest integration time (dim light)
 
-    /* Display the gain and integration time for reference sake */
+    // Display the gain and integration time for reference sake
     Serial.println("------------------------------------");
     Serial.print  ("Gain:         ");
-    tsl2591Gain_t gain = tsl.getGain();
-    tsl_print_gain(Serial);
+    tsl.printGain(Serial);
     Serial.println();
     Serial.print  ("Timing:       ");
-    tsl_print_timming(Serial);
+    Serial.print(tsl.getTimingInMS());
     Serial.println(" ms");
     Serial.println("------------------------------------");
     Serial.println("");
@@ -196,7 +119,6 @@ void configureSensor(void) {
     // TSL2591_PERSIST_5 → Require at least 5 samples outside of range to fire
     // TSL2591_PERSIST_10 → Require at least 10 samples outside of range to fire
     // TSL2591_PERSIST_15 → Require at least 15 samples outside of range to fire
-    // TSL2591_PERSIST_20 → Require at least 20 samples outside of range to fire
     // TSL2591_PERSIST_nn → in steps of 5
     // TSL2591_PERSIST_60 → Require at least 60 samples outside of range to fire
 
@@ -205,7 +127,7 @@ void configureSensor(void) {
     // NPINTR: out of range → check gain and integrationtime
     // const uint16_t AINT_threshold_lower = 50;
     // const uint16_t AINT_threshold_upper = 3000;
-    // const tsl2591Persist_t AINT_persist = TSL2591_PERSIST_20;
+    // const tsl2591Persist_t AINT_persistance = TSL2591_PERSIST_20;
     // const uint16_t NPINTR_threshold_lower = 1;
     // const uint16_t NPINTR_threshold_upper = 0xFFFF-1;
 
@@ -214,13 +136,13 @@ void configureSensor(void) {
     // NPINTR: nearly out of range → check gain and integrationtime
     const uint16_t AINT_threshold_lower = 0;
     const uint16_t AINT_threshold_upper = 0;
-    const tsl2591Persist_t AINT_persist = TSL2591_PERSIST_EVERY;
+    const tsl2591Persist_t AINT_persistance = TSL2591_PERSIST_EVERY;
     const uint16_t NPINTR_threshold_lower = 30;
     const uint16_t NPINTR_threshold_upper = 65500;
 
     tsl.clearInterrupt();
     tsl.setALSInterruptThresholds(
-        AINT_threshold_lower, AINT_threshold_upper, AINT_persist);
+        AINT_threshold_lower, AINT_threshold_upper, AINT_persistance);
     tsl.setNPInterruptThresholds(
         NPINTR_threshold_lower, NPINTR_threshold_upper);
     tsl.clearInterrupt();
@@ -231,7 +153,7 @@ void configureSensor(void) {
     Serial.print(" to ");
     Serial.print(AINT_threshold_upper, DEC);
     Serial.print(" with persist ");
-    tsl_print_persist(Serial, AINT_persist);
+    tsl.printPersistance(Serial, AINT_persistance);
     Serial.println();
     Serial.print("NPINTR Threshold Window: ");
     Serial.print(NPINTR_threshold_lower, DEC);
