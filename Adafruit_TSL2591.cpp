@@ -384,6 +384,19 @@ uint16_t Adafruit_TSL2591::getLuminosity (uint8_t channel)
 
 /************************************************************************/
 /*!
+    @brief  set up the ALS interrupt thresholds (interrupt generated when light level is outside the lower/upper range for long enough). (this is here for compatibily reasons only and DEPRECATED. please use the {@link setALSInterruptThresholds} instead!)
+    @param  lowerThreshold Raw light data reading level that is the lower value threshold for interrupt
+    @param  upperThreshold Raw light data reading level that is the higher value threshold for interrupt
+    @param  persist How many counts we must be outside range for interrupt to fire, default is any single value
+*/
+/**************************************************************************/
+void Adafruit_TSL2591::registerInterrupt(uint16_t lowerThreshold, uint16_t upperThreshold, tsl2591Persist_t persist = TSL2591_PERSIST_ANY)
+{
+  setALSInterruptThresholds(lowerThreshold, upperThreshold, persist);
+}
+
+/************************************************************************/
+/*!
     @brief  set up the ALS interrupt thresholds (interrupt generated when light level is outside the lower/upper range for long enough).
     @param  lowerThreshold Raw light data reading level that is the lower value threshold for interrupt
     @param  upperThreshold Raw light data reading level that is the higher value threshold for interrupt

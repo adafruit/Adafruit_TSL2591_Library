@@ -153,6 +153,7 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
 
   // Interrupt
   void    clearInterrupt(void);
+  void    registerInterrupt(uint16_t lowerThreshold, uint16_t upperThreshold, tsl2591Persist_t persist) __attribute__ ((deprecated("please use setALSInterruptThresholds instead.")));
   void    setALSInterruptThresholds(uint16_t lowerThreshold, uint16_t upperThreshold, tsl2591Persist_t persist);
   void    setNPInterruptThresholds(uint16_t lowerThreshold, uint16_t upperThreshold);
   uint8_t getStatus();
