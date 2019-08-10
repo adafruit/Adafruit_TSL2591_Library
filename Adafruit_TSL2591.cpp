@@ -705,7 +705,13 @@ void Adafruit_TSL2591::getSensor(sensor_t *sensor)
 }
 /*******************************************************/
 
-
+/**************************************************************************/
+/*!
+    @brief  read 8bit from sensor
+    @param  reg register address
+    @return register value
+*/
+/**************************************************************************/
 uint8_t Adafruit_TSL2591::read8(uint8_t reg)
 {
   uint8_t x;
@@ -720,6 +726,13 @@ uint8_t Adafruit_TSL2591::read8(uint8_t reg)
   return x;
 }
 
+/**************************************************************************/
+/*!
+    @brief  read 16bit from sensor
+    @param  reg register address
+    @return register value
+*/
+/**************************************************************************/
 uint16_t Adafruit_TSL2591::read16(uint8_t reg)
 {
   uint16_t x;
@@ -738,6 +751,13 @@ uint16_t Adafruit_TSL2591::read16(uint8_t reg)
   return x;
 }
 
+/**************************************************************************/
+/*!
+    @brief  write 8bit value to sensor register
+    @param  reg register address
+    @param value register value
+*/
+/**************************************************************************/
 void Adafruit_TSL2591::write8 (uint8_t reg, uint8_t value)
 {
   Wire.beginTransmission(TSL2591_ADDR);
@@ -746,7 +766,12 @@ void Adafruit_TSL2591::write8 (uint8_t reg, uint8_t value)
   Wire.endTransmission();
 }
 
-
+/**************************************************************************/
+/*!
+    @brief  write register address to sensor
+    @param  reg register address
+*/
+/**************************************************************************/
 void Adafruit_TSL2591::write8 (uint8_t reg)
 {
   Wire.beginTransmission(TSL2591_ADDR);
