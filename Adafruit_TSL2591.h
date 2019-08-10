@@ -175,11 +175,26 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
   uint16_t  read16  ( uint8_t reg );
   uint8_t   read8   ( uint8_t reg );
 
+  /*!
+    @brief  internal store for intergration time
+  */
   tsl2591IntegrationTime_t _integration;
+  /*!
+    @brief  internal store for gaian factor
+  */
   tsl2591Gain_t _gain;
+  /*!
+    @brief  internal store for sensorID
+  */
   int32_t _sensorID;
 
+  /*!
+    @brief  internal flag: is sensor active?
+  */
   boolean _enabled;
+  /*!
+    @brief  internal flag: is library initialised?
+  */
   boolean _initialized;
 };
 #endif

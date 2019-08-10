@@ -191,7 +191,7 @@ tsl2591Gain_t Adafruit_TSL2591::getGain()
 /************************************************************************/
 /*!
     @brief  Print gain value in Human readable form
-    @param  out {@link Print} reference to use for printing
+    @param  out Print (=Serial) reference to use for printing
     @param  gain {@link tsl2591Gain_t} gain value
 */
 /**************************************************************************/
@@ -216,7 +216,7 @@ void Adafruit_TSL2591::printGain(Print &out, tsl2591Gain_t gain)
 /************************************************************************/
 /*!
     @brief  Print current gain value in Human readable form
-    @param  out {@link Print} reference to use for printing
+    @param  out Print (=Serial) reference to use for printing
 */
 /**************************************************************************/
 void Adafruit_TSL2591::printGain(Print &out) {
@@ -552,9 +552,9 @@ uint8_t Adafruit_TSL2591::getStatus(void)
 
 /************************************************************************/
 /*!
-    @brief  Print persistance value in Human readable form
-    @param  out {@link Print} reference to use for printing
-    @param  gain {@link tsl2591Persist_t} persistance value
+    @brief  convert persistance value to integer form
+    @param  persistance {@link tsl2591Persist_t} persistance value
+    @return persistance value as integer
 */
 /**************************************************************************/
 uint8_t Adafruit_TSL2591::convertPersistanceToInt(tsl2591Persist_t persistance)
@@ -616,8 +616,8 @@ uint8_t Adafruit_TSL2591::convertPersistanceToInt(tsl2591Persist_t persistance)
 /************************************************************************/
 /*!
     @brief  Print persistance value in Human readable form
-    @param  out {@link Print} reference to use for printing
-    @param  gain {@link tsl2591Persist_t} persistance value
+    @param  out Print (=Serial) reference to use for printing
+    @param  persistance {@link tsl2591Persist_t} persistance value
 */
 /**************************************************************************/
 void Adafruit_TSL2591::printPersistance(Print &out, tsl2591Persist_t persistance)
