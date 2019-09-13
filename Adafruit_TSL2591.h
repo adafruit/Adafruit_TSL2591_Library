@@ -55,6 +55,8 @@
 #define TSL2591_LUX_COEFC         (0.59F)  ///< CH1 coefficient A
 #define TSL2591_LUX_COEFD         (0.86F)  ///< CH2 coefficient B
 
+#define TSL2591_SRESET            (0x80)   ///< System reset
+
 /// TSL2591 Register map
 enum
 {
@@ -137,6 +139,7 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
   boolean   begin   ( void );
   void      enable  ( void );
   void      disable ( void );
+  void      reset   ( void );
 
   float     calculateLux  ( uint16_t ch0, uint16_t ch1 );
   void      setGain       ( tsl2591Gain_t gain );
