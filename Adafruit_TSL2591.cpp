@@ -147,6 +147,11 @@ void Adafruit_TSL2591::disable(void)
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE, TSL2591_ENABLE_POWEROFF);
 }
 
+/**************************************************************************/
+/*!
+    @brief Resets the chip via system reset command
+*/
+/**************************************************************************/
 void Adafruit_TSL2591::reset(void) {
   write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CONTROL, TSL2591_SRESET);
   _initialized = false;
