@@ -134,7 +134,8 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
  public:
   Adafruit_TSL2591(int32_t sensorID = -1);
   
-  boolean   begin   ( void );
+  boolean   begin   ( TwoWire *theWire );
+    boolean   begin   ( );
   void      enable  ( void );
   void      disable ( void );
 
@@ -157,6 +158,9 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
   void getSensor ( sensor_t* );
 
  private:
+ 
+   TwoWire *_i2c;
+   
   void      write8  ( uint8_t r);
   void      write8  ( uint8_t r, uint8_t v );
   uint16_t  read16  ( uint8_t reg );
