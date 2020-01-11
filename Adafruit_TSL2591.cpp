@@ -75,6 +75,7 @@ Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID)
 /**************************************************************************/
 /*!
     @brief  Setups the I2C interface and hardware, identifies if chip is found
+    @param theWire a reference to TwoWire instance
     @returns True if a TSL2591 is found, false on any failure
 */
 /**************************************************************************/
@@ -109,7 +110,12 @@ _i2c=theWire;
 
   return true;
 }
-
+/**************************************************************************/
+/*!
+    @brief  Setups the I2C interface and hardware, identifies if chip is found
+    @returns True if a TSL2591 is found, false on any failure
+*/
+/**************************************************************************/
 boolean Adafruit_TSL2591::begin()
 {
 
