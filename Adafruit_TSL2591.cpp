@@ -78,9 +78,10 @@ Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID)
     @returns True if a TSL2591 is found, false on any failure
 */
 /**************************************************************************/
-boolean Adafruit_TSL2591::begin(void)
+boolean Adafruit_TSL2591::begin(TwoWire *theWire)
 {
-  Wire.begin();
+_i2c=theWire;
+  _i2c->begin();
 
   /*
   for (uint8_t i=0; i<0x20; i++)
@@ -105,6 +106,14 @@ boolean Adafruit_TSL2591::begin(void)
 
   // Note: by default, the device is in power down mode on bootup
   disable();
+
+  return true;
+}
+
+boolean Adafruit_TSL2591::begin()
+{
+
+	begin(&Wire);
 
   return true;
 }
@@ -214,7 +223,7 @@ tsl2591IntegrationTime_t Adafruit_TSL2591::getTiming()
     @brief  Calculates the visible Lux based on the two light sensors
     @param  ch0 Data from channel 0 (IR+Visible)
     @param  ch1 Data from channel 1 (IR)
-    @returns Lux, based on AMS coefficients (or < 0 if overflow)
+    @returns Lux, based on AMS coefficients
 */
 /**************************************************************************/
 float Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
@@ -227,7 +236,7 @@ float Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
   if ((ch0 == 0xFFFF) | (ch1 == 0xFFFF))
   {
     // Signal an overflow
-    return -1;
+    return 0;
   }
 
   // Note: This algorithm is based on preliminary coefficients
@@ -323,7 +332,7 @@ uint32_t Adafruit_TSL2591::getFullLuminosity (void)
   // See: https://forums.adafruit.com/viewtopic.php?f=19&t=124176
   uint32_t x;
   uint16_t y;
-  y = read16(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CHAN0_LOW);
+  y |= read16(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CHAN0_LOW);
   x = read16(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CHAN1_LOW);
   x <<= 16;
   x |= y;
@@ -491,12 +500,12 @@ uint8_t Adafruit_TSL2591::read8(uint8_t reg)
 {
   uint8_t x;
 
-  Wire.beginTransmission(TSL2591_ADDR);
-  Wire.write(reg);
-  Wire.endTransmission();
+  _i2c->beginTransmission(TSL2591_ADDR);
+  _i2c->write(reg);
+  _i2c->endTransmission();
 
-  Wire.requestFrom(TSL2591_ADDR, 1);
-  x = Wire.read();
+  _i2c->requestFrom(TSL2591_ADDR, 1);
+  x = _i2c->read();
 
   return x;
 }
@@ -506,13 +515,13 @@ uint16_t Adafruit_TSL2591::read16(uint8_t reg)
   uint16_t x;
   uint16_t t;
 
-  Wire.beginTransmission(TSL2591_ADDR);
-  Wire.write(reg);
-  Wire.endTransmission();
+  _i2c->beginTransmission(TSL2591_ADDR);
+  _i2c->write(reg);
+  _i2c->endTransmission();
 
-  Wire.requestFrom(TSL2591_ADDR, 2);
-  t = Wire.read();
-  x = Wire.read();
+  _i2c->requestFrom(TSL2591_ADDR, 2);
+  t = _i2c->read();
+  x = _i2c->read();
 
   x <<= 8;
   x |= t;
@@ -521,16 +530,16 @@ uint16_t Adafruit_TSL2591::read16(uint8_t reg)
 
 void Adafruit_TSL2591::write8 (uint8_t reg, uint8_t value)
 {
-  Wire.beginTransmission(TSL2591_ADDR);
-  Wire.write(reg);
-  Wire.write(value);
-  Wire.endTransmission();
+  _i2c->beginTransmission(TSL2591_ADDR);
+  _i2c->write(reg);
+  _i2c->write(value);
+  _i2c->endTransmission();
 }
 
 
 void Adafruit_TSL2591::write8 (uint8_t reg)
 {
-  Wire.beginTransmission(TSL2591_ADDR);
-  Wire.write(reg);
-  Wire.endTransmission();
+  _i2c->beginTransmission(TSL2591_ADDR);
+  _i2c->write(reg);
+  _i2c->endTransmission();
 }
