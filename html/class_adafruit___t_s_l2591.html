@@ -84,9 +84,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a7095030063286a810c57690bc1cd9663"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___t_s_l2591.html#a7095030063286a810c57690bc1cd9663">Adafruit_TSL2591</a> (int32_t sensorID=-1)</td></tr>
 <tr class="memdesc:a7095030063286a810c57690bc1cd9663"><td class="mdescLeft">&#160;</td><td class="mdescRight">Instantiates a new Adafruit TSL2591 class.  <a href="#a7095030063286a810c57690bc1cd9663">More...</a><br /></td></tr>
 <tr class="separator:a7095030063286a810c57690bc1cd9663"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab250a72651bc869d8d65da3094e7f6fc"><td class="memItemLeft" align="right" valign="top">boolean&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___t_s_l2591.html#ab250a72651bc869d8d65da3094e7f6fc">begin</a> (void)</td></tr>
-<tr class="memdesc:ab250a72651bc869d8d65da3094e7f6fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Setups the I2C interface and hardware, identifies if chip is found.  <a href="#ab250a72651bc869d8d65da3094e7f6fc">More...</a><br /></td></tr>
-<tr class="separator:ab250a72651bc869d8d65da3094e7f6fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c490a2fc9e40857a45490a189666359"><td class="memItemLeft" align="right" valign="top">boolean&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___t_s_l2591.html#a2c490a2fc9e40857a45490a189666359">begin</a> (TwoWire *theWire)</td></tr>
+<tr class="memdesc:a2c490a2fc9e40857a45490a189666359"><td class="mdescLeft">&#160;</td><td class="mdescRight">Setups the I2C interface and hardware, identifies if chip is found.  <a href="#a2c490a2fc9e40857a45490a189666359">More...</a><br /></td></tr>
+<tr class="separator:a2c490a2fc9e40857a45490a189666359"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace5e93c2eca9cdff9f79ea521cde6cd3"><td class="memItemLeft" align="right" valign="top">boolean&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___t_s_l2591.html#ace5e93c2eca9cdff9f79ea521cde6cd3">begin</a> ()</td></tr>
+<tr class="memdesc:ace5e93c2eca9cdff9f79ea521cde6cd3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Setups the I2C interface and hardware, identifies if chip is found.  <a href="#ace5e93c2eca9cdff9f79ea521cde6cd3">More...</a><br /></td></tr>
+<tr class="separator:ace5e93c2eca9cdff9f79ea521cde6cd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f1382a374bd012caad92923240b7f70"><td class="memItemLeft" align="right" valign="top"><a id="a9f1382a374bd012caad92923240b7f70"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___t_s_l2591.html#a9f1382a374bd012caad92923240b7f70">enable</a> (void)</td></tr>
 <tr class="memdesc:a9f1382a374bd012caad92923240b7f70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enables the chip, so it's ready to take readings. <br /></td></tr>
@@ -163,8 +166,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="ab250a72651bc869d8d65da3094e7f6fc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab250a72651bc869d8d65da3094e7f6fc">&#9670;&nbsp;</a></span>begin()</h2>
+<a id="a2c490a2fc9e40857a45490a189666359"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c490a2fc9e40857a45490a189666359">&#9670;&nbsp;</a></span>begin() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -172,7 +175,33 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
         <tr>
           <td class="memname">boolean Adafruit_TSL2591::begin </td>
           <td>(</td>
-          <td class="paramtype">void&#160;</td>
+          <td class="paramtype">TwoWire *&#160;</td>
+          <td class="paramname"><em>theWire</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Setups the I2C interface and hardware, identifies if chip is found. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">theWire</td><td>a reference to TwoWire instance </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if a TSL2591 is found, false on any failure </dd></dl>
+
+</div>
+</div>
+<a id="ace5e93c2eca9cdff9f79ea521cde6cd3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ace5e93c2eca9cdff9f79ea521cde6cd3">&#9670;&nbsp;</a></span>begin() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">boolean Adafruit_TSL2591::begin </td>
+          <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
