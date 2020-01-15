@@ -184,7 +184,7 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
   */
   tsl2591IntegrationTime_t _integration;
   /*!
-    @brief  internal store for gaian factor
+    @brief  internal store for gain factor
   */
   tsl2591Gain_t _gain;
   /*!
