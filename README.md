@@ -1,6 +1,4 @@
-Adafruit TSL2591 [![Build Status](https://github.com/adafruit/Adafruit_TSL2591_Library/workflows/Arduino%20Library%20CI/badge.svg)](https://github.com/adafruit/Adafruit_TSL2591_Library/actions)
-================
-
+# Adafruit TSL2591 Library [![Build Status](https://travis-ci.com/adafruit/Adafruit_TSL2591_Library.svg?branch=master)](https://travis-ci.com/adafruit/Adafruit_TSL2591_Library)
 
 <img src="https://cdn-shop.adafruit.com/970x728/1980-01.jpg" height="300"/>
 
