@@ -49,14 +49,6 @@
 
 Adafruit_TSL2591 tsl = Adafruit_TSL2591();
 
-void tsl_write8(uint8_t reg, uint8_t value) {
-    Wire.beginTransmission(TSL2591_ADDR);
-    Wire.write(reg);
-    Wire.write(value);
-    Wire.endTransmission();
-}
-
-
 /**************************************************************************/
 /*
 Displays some basic information on this sensor from the unified

@@ -94,9 +94,10 @@ typedef enum
 }
 tsl2591IntegrationTime_t;
 
+// constants for Max ADC Count at Intergrationtime
 // datasheet: Figure 8: ALS Characteristics - Max ADC Count
-#define TSL2591_MAX_ADC_COUNT_100MS (36863)
-#define TSL2591_MAX_ADC_COUNT_200MS_600MS (65535)
+#define TSL2591_MAX_ADC_COUNT_100MS (36863)  ///< Max ADC Count at Intergrationtime 100ms
+#define TSL2591_MAX_ADC_COUNT_200MS_600MS (65535)  ///< Max ADC Count at Intergrationtime 200ms - 600ms
 
 /// Enumeration for the persistance filter (for interrupts)
 typedef enum
