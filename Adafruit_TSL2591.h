@@ -172,6 +172,9 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
 
  protected:
 
+  /*!
+    @brief  internal store for i2c pointer
+  */
    TwoWire *_i2c;
 
   void      write8  ( uint8_t r);
