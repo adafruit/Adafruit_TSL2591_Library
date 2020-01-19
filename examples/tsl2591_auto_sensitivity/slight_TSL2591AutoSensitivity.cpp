@@ -54,7 +54,7 @@ slight_TSL2591AutoSensitivity::~slight_TSL2591AutoSensitivity() {
     end();
 }
 
-void slight_TSL2591AutoSensitivity::begin(Stream &out) {
+bool slight_TSL2591AutoSensitivity::begin(Stream &out) {
     // clean up..
     end();
     // start up...
@@ -76,6 +76,7 @@ void slight_TSL2591AutoSensitivity::begin(Stream &out) {
             ready = false;
         }
     }
+    return ready;
 }
 
 void slight_TSL2591AutoSensitivity::end() {
@@ -150,11 +151,11 @@ void slight_TSL2591AutoSensitivity::configure_sensor(Print &out) {
     // you a longer time over which to sense light
     // longer timelines are slower, but are good in very low light situtations!
     // shortest integration time (bright light)
-    tsl.setTiming(TSL2591_INTEGRATIONTIME_100MS);
+    // tsl.setTiming(TSL2591_INTEGRATIONTIME_100MS);
     // tsl.setTiming(TSL2591_INTEGRATIONTIME_200MS);
     // tsl.setTiming(TSL2591_INTEGRATIONTIME_300MS);
     // tsl.setTiming(TSL2591_INTEGRATIONTIME_400MS);
-    // tsl.setTiming(TSL2591_INTEGRATIONTIME_500MS);
+    tsl.setTiming(TSL2591_INTEGRATIONTIME_500MS);
     // tsl.setTiming(TSL2591_INTEGRATIONTIME_600MS);
     // longest integration time (dim light)
 
@@ -166,6 +167,9 @@ void slight_TSL2591AutoSensitivity::configure_sensor(Print &out) {
     Serial.print("Timing:       ");
     Serial.print(tsl.getTimingInMS());
     Serial.println(" ms");
+    Serial.print("Max ADC Counts: ");
+    Serial.print(tsl.getMaxADCCounts());
+    Serial.println();
     Serial.println("------------------------------------");
     Serial.println("");
 
@@ -196,8 +200,8 @@ void slight_TSL2591AutoSensitivity::configure_sensor(Print &out) {
     const uint16_t AINT_threshold_lower = 0;
     const uint16_t AINT_threshold_upper = 0;
     const tsl2591Persist_t AINT_persistance = TSL2591_PERSIST_EVERY;
-    const uint16_t NPINTR_threshold_lower = 30;
-    const uint16_t NPINTR_threshold_upper = 65500;
+    const uint16_t NPINTR_threshold_lower = 100;
+    const uint16_t NPINTR_threshold_upper =  tsl.getMaxADCCounts() - 200;;
 
     tsl.clearInterrupt();
     tsl.setALSInterruptThresholds(
@@ -224,49 +228,6 @@ void slight_TSL2591AutoSensitivity::configure_sensor(Print &out) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // custom tsl functions
 
-uint8_t slight_TSL2591AutoSensitivity::tsl_read8(uint8_t reg) {
-    uint8_t x;
-
-    Wire.beginTransmission(TSL2591_ADDR);
-    Wire.write(reg);
-    Wire.endTransmission();
-
-    Wire.requestFrom(TSL2591_ADDR, 1);
-    x = Wire.read();
-
-    return x;
-}
-
-uint16_t slight_TSL2591AutoSensitivity::tsl_read16(uint8_t reg) {
-    uint16_t x;
-    uint16_t t;
-
-    Wire.beginTransmission(TSL2591_ADDR);
-    Wire.write(reg);
-    Wire.endTransmission();
-
-    Wire.requestFrom(TSL2591_ADDR, 2);
-    t = Wire.read();
-    x = Wire.read();
-
-    x <<= 8;
-    x |= t;
-    return x;
-}
-
-void slight_TSL2591AutoSensitivity::tsl_write8(uint8_t reg, uint8_t value) {
-    Wire.beginTransmission(TSL2591_ADDR);
-    Wire.write(reg);
-    Wire.write(value);
-    Wire.endTransmission();
-}
-
-void slight_TSL2591AutoSensitivity::tsl_write8(uint8_t reg) {
-    Wire.beginTransmission(TSL2591_ADDR);
-    Wire.write(reg);
-    Wire.endTransmission();
-}
-
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // helper
@@ -285,7 +246,7 @@ void slight_TSL2591AutoSensitivity::tsl_print_details(Print &out) {
     out.print(sensor.max_value);
     out.println(F(" lux"));
     out.print(F("Min Value:  "));
-    out.print(sensor.min_value);
+    out.print(sensor.min_value, 4);
     out.println(F(" lux"));
     out.print(F("Resolution: "));
     out.print(sensor.resolution, 4);
@@ -297,6 +258,9 @@ void slight_TSL2591AutoSensitivity::tsl_print_details(Print &out) {
     out.print(F("Timing:       "));
     out.print(tsl.getTimingInMS());
     out.println(" ms");
+    out.print("Max ADC Counts: ");
+    out.print(tsl.getMaxADCCounts());
+    out.println();
     out.println(F("------------------------------------"));
     out.println(F(""));
 }
@@ -358,6 +322,18 @@ void slight_TSL2591AutoSensitivity::print_status(Print &out) {
     uint16_t ir, full;
     ir = lum >> 16;
     full = lum & 0xFFFF;
+
+    // char buffer[] =
+    //     "IR: 65535  Full: 65535  Visible: 65535  Lux: 88000.0000  \0";
+    // snprintf(
+    //     buffer, sizeof(buffer),
+    //     "IR: %5u  Full: %5u  Visible: %5u  Lux: %5.4f",
+    //     ir,
+    //     full,
+    //     (full-ir),
+    //     tsl.calculateLux(full, ir));
+    // out.print(buffer);
+    // out.println();
 
     Serial.print("IR: "); Serial.print(ir);  Serial.print("  ");
     Serial.print("Full: "); Serial.print(full); Serial.print("  ");

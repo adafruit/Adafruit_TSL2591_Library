@@ -42,7 +42,7 @@ SOFTWARE.
 #include <Adafruit_Sensor.h>
 #include "Adafruit_TSL2591.h"
 
-class slight_TSL2591AutoSensitivitySensitivity {
+class slight_TSL2591AutoSensitivity {
 public:
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,7 +52,7 @@ public:
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // basic library api
-    void begin(Stream &out);
+    bool begin(Stream &out);
     void update();
     void end();
 
@@ -68,11 +68,6 @@ public:
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // custom tls functions
-
-    void tsl_write8(uint8_t reg);
-    void tsl_write8(uint8_t reg, uint8_t value);
-    uint16_t tsl_read16(uint8_t reg);
-    uint8_t tsl_read8(uint8_t reg);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // helper
