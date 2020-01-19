@@ -56,10 +56,6 @@ SOFTWARE.
 //      GROUND → common ground
 slight_TSL2591AutoSensitivity als = slight_TSL2591AutoSensitivity();
 
-// enable float for printf
-// https://github.com/arduino/ArduinoCore-samd/issues/217
-// asm(".global _printf_float");
-
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // debug out
 uint32_t timeStamp_debugout = millis();
@@ -91,8 +87,9 @@ void setup(void) {
     // Wait for Serial Connection to be Opend from Host
     // or timeout after 2seconds
     uint32_t timeStamp_Start = millis();
-    while( (! Serial) && ( (millis() - timeStamp_Start) < 2000 ) ) {
+    while( (! Serial) && ( (millis() - timeStamp_Start) < 3000 ) ) {
         // nothing to do
+        delay(1);
     }
 
     Serial.println();
