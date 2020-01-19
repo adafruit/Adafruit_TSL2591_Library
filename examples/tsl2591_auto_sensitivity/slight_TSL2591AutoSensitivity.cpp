@@ -326,41 +326,31 @@ void slight_TSL2591AutoSensitivity::print_status(Print &out) {
     char buffer[] =
         "IR: 65535  Full: 65535  Visible: 65535  Lux: 88000.0000     \0";
 
-    // #if defined(ARDUINO_ARCH_AVR)
-    //     int chars_written = snprintf(
-    //         buffer, sizeof(buffer),
-    //         "IR: %5u  Full: %5u  Visible: %5u  Lux: ",
-    //         ir,
-    //         full,
-    //         (full-ir));
-    //     if (chars_written > 0) {
-    //         dtostrf(tsl.calculateLux(full, ir), 5, 4, buffer+chars_written);
-    //     }
-    // #elif defined(ARDUINO_ARCH_SAMD)
-    //     // enable float for printf
-    //     // https://github.com/arduino/ArduinoCore-samd/issues/217
-    //     asm(".global _printf_float");
-    //     snprintf(
-    //         buffer, sizeof(buffer),
-    //         "IR: %5u  Full: %5u  Visible: %5u  Lux: %5.4f",
-    //         ir,
-    //         full,
-    //         (full-ir),
-    //         tsl.calculateLux(full, ir));
-    // #else
-    //     #error “currently this lib supports only AVR or SAMD.”
-    // #endif
+    #if defined(ARDUINO_ARCH_AVR)
+        int chars_written = snprintf(
+            buffer, sizeof(buffer),
+            "IR: %5u  Full: %5u  Visible: %5u  Lux: ",
+            ir,
+            full,
+            (full-ir));
+        if (chars_written > 0) {
+            dtostrf(tsl.calculateLux(full, ir), 5, 4, buffer+chars_written);
+        }
+    #elif defined(ARDUINO_ARCH_SAMD)
+        // enable float for printf
+        // https://github.com/arduino/ArduinoCore-samd/issues/217
+        asm(".global _printf_float");
+        snprintf(
+            buffer, sizeof(buffer),
+            "IR: %5u  Full: %5u  Visible: %5u  Lux: %5.4f",
+            ir,
+            full,
+            (full-ir),
+            tsl.calculateLux(full, ir));
+    #else
+        #error “currently this lib supports only AVR or SAMD.”
+    #endif
 
-    // enable float for printf
-    // https://github.com/arduino/ArduinoCore-samd/issues/217
-    asm(".global _printf_float");
-    snprintf(
-        buffer, sizeof(buffer),
-        "IR: %5u  Full: %5u  Visible: %5u  Lux: %5.4f",
-        ir,
-        full,
-        (full-ir),
-        tsl.calculateLux(full, ir));
     out.print(buffer);
 
     tsl.clearInterrupt();
