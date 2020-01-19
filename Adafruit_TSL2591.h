@@ -94,6 +94,10 @@ typedef enum
 }
 tsl2591IntegrationTime_t;
 
+// datasheet: Figure 8: ALS Characteristics - Max ADC Count
+#define TSL2591_MAX_ADC_COUNT_100MS (36863)
+#define TSL2591_MAX_ADC_COUNT_200MS_600MS (65535)
+
 /// Enumeration for the persistance filter (for interrupts)
 typedef enum
 {
@@ -151,6 +155,7 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
 
   tsl2591IntegrationTime_t getTiming();
   uint16_t                 getTimingInMS();
+  uint16_t                 getMaxADCCounts();
   tsl2591Gain_t            getGain();
 
   void        printGain(Print &out);

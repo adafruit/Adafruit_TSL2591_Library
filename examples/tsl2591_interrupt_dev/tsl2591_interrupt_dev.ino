@@ -70,9 +70,12 @@ void displaySensorDetails(void) {
     Serial.print  ("Sensor:       "); Serial.println(sensor.name);
     Serial.print  ("Driver Ver:   "); Serial.println(sensor.version);
     Serial.print  ("Unique ID:    "); Serial.println(sensor.sensor_id);
-    Serial.print  ("Max Value:    "); Serial.print(sensor.max_value); Serial.println(" lux");
-    Serial.print  ("Min Value:    "); Serial.print(sensor.min_value); Serial.println(" lux");
-    Serial.print  ("Resolution:   "); Serial.print(sensor.resolution, 4); Serial.println(" lux");
+    Serial.print  ("Max Value:    "); Serial.print(sensor.max_value);
+        Serial.println(" lux");
+    Serial.print  ("Min Value:    "); Serial.print(sensor.min_value, 4);
+        Serial.println(" lux");
+    Serial.print  ("Resolution:   "); Serial.print(sensor.resolution, 4);
+        Serial.println(" lux");
     Serial.println("------------------------------------");
     Serial.println("");
     delay(500);
@@ -84,7 +87,8 @@ Configures the gain and integration time for the TSL2591
 */
 /**************************************************************************/
 void configureSensor(void) {
-    // You can change the gain on the fly, to adapt to brighter/dimmer light situations
+    // You can change the gain on the fly, to adapt
+    // to brighter/dimmer light situations
     tsl.setGain(TSL2591_GAIN_LOW);    // 1x gain (bright light)
     // tsl.setGain(TSL2591_GAIN_MED);    // 25x gain
     // tsl.setGain(TSL2591_GAIN_HIGH);   // 428x gain
@@ -101,12 +105,15 @@ void configureSensor(void) {
 
     // Display the gain and integration time for reference sake
     Serial.println("------------------------------------");
-    Serial.print  ("Gain:         ");
+    Serial.print  ("Gain:          ");
     tsl.printGain(Serial);
     Serial.println();
-    Serial.print  ("Timing:       ");
+    Serial.print  ("Timing:        ");
     Serial.print(tsl.getTimingInMS());
     Serial.println(" ms");
+    Serial.print  ("Max ADC Counts: ");
+    Serial.print(tsl.getMaxADCCounts());
+    Serial.println();
     Serial.println("------------------------------------");
     Serial.println("");
 
@@ -129,7 +136,7 @@ void configureSensor(void) {
     // const uint16_t AINT_threshold_upper = 3000;
     // const tsl2591Persist_t AINT_persistance = TSL2591_PERSIST_20;
     // const uint16_t NPINTR_threshold_lower = 1;
-    // const uint16_t NPINTR_threshold_upper = 0xFFFF-1;
+    // const uint16_t NPINTR_threshold_upper = tsl.getMaxADCCounts() - 1;
 
     // this combination would be helpfull to:
     // AINT: a new value is available
@@ -137,8 +144,8 @@ void configureSensor(void) {
     const uint16_t AINT_threshold_lower = 0;
     const uint16_t AINT_threshold_upper = 0;
     const tsl2591Persist_t AINT_persistance = TSL2591_PERSIST_EVERY;
-    const uint16_t NPINTR_threshold_lower = 30;
-    const uint16_t NPINTR_threshold_upper = 65500;
+    const uint16_t NPINTR_threshold_lower = 200;
+    const uint16_t NPINTR_threshold_upper = tsl.getMaxADCCounts() - 200;
 
     tsl.clearInterrupt();
     tsl.setALSInterruptThresholds(
@@ -193,10 +200,10 @@ void setup(void) {
         while (1) {}
     }
 
-    /* Display some basic information on this sensor */
+    // Display some basic information on this sensor
     displaySensorDetails();
 
-    /* Configure the sensor (including the interrupt threshold) */
+    // Configure the sensor (including the interrupt threshold)
     configureSensor();
 
     // Now we're ready to get readings ... move on to loop()!

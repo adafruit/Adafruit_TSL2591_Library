@@ -287,6 +287,30 @@ uint16_t Adafruit_TSL2591::getTimingInMS()
 
 /************************************************************************/
 /*!
+    @brief  get sensor max adc counts for current intergration time
+    @returns max adc counts
+*/
+/**************************************************************************/
+uint16_t Adafruit_TSL2591::getMaxADCCounts()
+{
+  uint16_t result = 0;
+  switch (_integration) {
+      case TSL2591_INTEGRATIONTIME_100MS: {
+        result = TSL2591_MAX_ADC_COUNT_100MS;
+      } break;
+      case TSL2591_INTEGRATIONTIME_200MS:
+      case TSL2591_INTEGRATIONTIME_300MS:
+      case TSL2591_INTEGRATIONTIME_400MS:
+      case TSL2591_INTEGRATIONTIME_500MS:
+      case TSL2591_INTEGRATIONTIME_600MS: {
+          result = TSL2591_MAX_ADC_COUNT_200MS_600MS;
+      } break;
+  }
+  return result;
+}
+
+/************************************************************************/
+/*!
     @brief  Calculates the visible Lux based on the two light sensors
     @param  ch0 Data from channel 0 (IR+Visible)
     @param  ch1 Data from channel 1 (IR)
