@@ -323,24 +323,23 @@ void slight_TSL2591AutoSensitivity::print_status(Print &out) {
     ir = lum >> 16;
     full = lum & 0xFFFF;
 
-    // char buffer[] =
-    //     "IR: 65535  Full: 65535  Visible: 65535  Lux: 88000.0000  \0";
-    // snprintf(
-    //     buffer, sizeof(buffer),
-    //     "IR: %5u  Full: %5u  Visible: %5u  Lux: %5.4f",
-    //     ir,
-    //     full,
-    //     (full-ir),
-    //     tsl.calculateLux(full, ir));
-    // out.print(buffer);
-    // out.println();
+    char buffer[] =
+        "IR: 65535  Full: 65535  Visible: 65535  Lux: 88000.0000  \0";
+    snprintf(
+        buffer, sizeof(buffer),
+        "IR: %5u  Full: %5u  Visible: %5u  Lux: %5.4f",
+        ir,
+        full,
+        (full-ir),
+        tsl.calculateLux(full, ir));
+    out.print(buffer);
 
-    Serial.print("IR: "); Serial.print(ir);  Serial.print("  ");
-    Serial.print("Full: "); Serial.print(full); Serial.print("  ");
-    Serial.print("Visible: "); Serial.print(full - ir); Serial.print("  ");
-    Serial.print("Lux: "); Serial.print(tsl.calculateLux(full, ir), 4);
+    // Serial.print("IR: "); Serial.print(ir);  Serial.print("  ");
+    // Serial.print("Full: "); Serial.print(full); Serial.print("  ");
+    // Serial.print("Visible: "); Serial.print(full - ir); Serial.print("  ");
+    // Serial.print("Lux: "); Serial.print(tsl.calculateLux(full, ir), 4);
     // Serial.print("  ");
-    Serial.println();
+    // Serial.println();
 
     tsl.clearInterrupt();
 }

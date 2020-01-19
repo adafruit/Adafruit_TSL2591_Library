@@ -66,14 +66,15 @@ uint32_t timeStamp_debugout = millis();
 
 void debugout(Print &out) {
     while((millis() - timeStamp_debugout) > 270) {
-        out.println(millis());
-        // char buffer[] = "[1234567890ms]   \0";
-        // snprintf(
-        //     buffer, sizeof(buffer),
-        //     "[%8lums] ", millis());
-        // out.print(buffer);
+        char buffer[] = "[1234567890ms]   \0";
+        snprintf(
+            buffer, sizeof(buffer),
+            "[%8lums] ", millis());
+        out.print(buffer);
 
-        // als.print_status(out);
+        als.print_status(out);
+        out.println();
+
         timeStamp_debugout = millis();
     }
 }
