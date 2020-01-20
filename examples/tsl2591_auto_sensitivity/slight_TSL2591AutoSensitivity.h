@@ -131,7 +131,7 @@ public:
             0,
             TSL2591_PERSIST_EVERY,
             100,
-            TSL2591_MAX_ADC_COUNT_100MS-1000
+            10000
         },
         // 4
         {
@@ -141,7 +141,7 @@ public:
             0,
             TSL2591_PERSIST_EVERY,
             100,
-            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+            10000
         },
         // 5
         {
@@ -151,7 +151,7 @@ public:
             0,
             TSL2591_PERSIST_EVERY,
             100,
-            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+            10000
         },
         // 6
         {
@@ -161,7 +161,7 @@ public:
             0,
             TSL2591_PERSIST_EVERY,
             100,
-            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+            5000
         },
         // 7
         {
@@ -171,7 +171,7 @@ public:
             0,
             TSL2591_PERSIST_EVERY,
             100,
-            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+            2000
         },
         // 8
         {
@@ -181,7 +181,7 @@ public:
             0,
             TSL2591_PERSIST_EVERY,
             100,
-            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+            1000
         },
         // ------------------------------------------
         // GAIN MAX
@@ -193,7 +193,7 @@ public:
             0,
             TSL2591_PERSIST_EVERY,
             100,
-            TSL2591_MAX_ADC_COUNT_100MS-1000
+            5000
         },
         // 10
         {
@@ -203,7 +203,7 @@ public:
             0,
             TSL2591_PERSIST_EVERY,
             100,
-            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+            4000
         },
         // 11
         {
@@ -213,7 +213,7 @@ public:
             0,
             TSL2591_PERSIST_EVERY,
             100,
-            2000
+            3000
         },
         // 12
         {
@@ -243,7 +243,7 @@ public:
             0,
             TSL2591_PERSIST_EVERY,
             0,
-            1000
+            500
         }
     };
 
@@ -253,6 +253,8 @@ public:
     void sensor_print_details(Print &out);
     void print_status(Print &out);
     // uint32_t last_action = 0;
+    uint16_t get_raw_ir();
+    uint16_t get_raw_full();
 
     double value_lux = 0.0;
 private:
@@ -260,6 +262,7 @@ private:
 
     uint16_t raw_ir = 0;
     uint16_t raw_full = 0;
+    double raw_lux = 0.0;
 
     uint8_t sens_conf_current_id = 9;
     Adafruit_TSL2591::tsl2591Config_t *sens_conf_current;

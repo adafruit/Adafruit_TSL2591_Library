@@ -71,24 +71,37 @@ void setup_als(Print &out) {
     out.println();
 }
 
+void handle_sens_conf_change(Print &out) {
+    if (als.get_sensitivity_config_changed()) {
+        debugout_sens_conf_change(out);
+        als.reset_sensitivity_config_changed();
+    }
+}
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // debug out
 uint32_t timeStamp_debugout = millis();
 
+void print_runtime(Print &out) {
+    char buffer[] = "[1234567890ms]   \0";
+    snprintf(
+        buffer, sizeof(buffer),
+        "[%8lums]", millis());
+    out.print(buffer);
+}
+
 void debugout(Print &out) {
     while((millis() - timeStamp_debugout) > 1000) {
-        char buffer[] = "[1234567890ms]   \0";
-        snprintf(
-            buffer, sizeof(buffer),
-            "[%8lums] ", millis());
-        out.print(buffer);
+        print_runtime(out);
 
-        out.print("  value_lux:");
+        out.print("  ");
         out.print(als.value_lux, 4);
+        out.print(" lux");
 
         out.print("      id:");
         out.print(als.get_sensitivity_config_id());
-        // out.print("");
+        out.print("      full:");
+        out.print(als.get_raw_full());
 
         // als.print_status(out);
         out.println();
@@ -97,32 +110,25 @@ void debugout(Print &out) {
     }
 }
 
-void handle_sens_conf_change(Print &out) {
-    if (als.get_sensitivity_config_changed()) {
-        out.println("******************************************");
-        char buffer[] = "[1234567890ms]   \0";
-        snprintf(
-            buffer, sizeof(buffer),
-            "%8lums ", millis());
-        out.print(buffer);
-        out.println();
+void debugout_sens_conf_change(Print &out) {
+    out.println("******************************************");
+    print_runtime(out);
+    out.println();
 
-        out.print("");
-        out.print("sens_conf_current_id:");
-        out.print(als.get_sensitivity_config_id());
-        out.println();
+    out.print("");
+    out.print("sens_conf_current_id:");
+    out.print(als.get_sensitivity_config_id());
+    out.println();
 
-        out.print("sens_conf_changed:");
-        out.print(als.get_sensitivity_config_changed());
-        out.println();
+    out.print("sens_conf_changed:");
+    out.print(als.get_sensitivity_config_changed());
+    out.println();
 
-        out.println();
+    out.println();
 
-        als.tsl.printConfig(out);
-        out.println();
-        out.println("******************************************");
-        als.reset_sensitivity_config_changed();
-    }
+    als.tsl.printConfig(out);
+    out.println();
+    out.println("******************************************");
 }
 
 

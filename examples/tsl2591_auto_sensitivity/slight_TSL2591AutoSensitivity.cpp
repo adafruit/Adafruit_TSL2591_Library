@@ -93,8 +93,8 @@ void slight_TSL2591AutoSensitivity::update() {
             && (x & TSL2591_STATUS_AINT)
         ) {
             // valid reading
-            print_status(Serial);
-            Serial.println();
+            // print_status(Serial);
+            // Serial.println();
             tsl.clearInterrupt();
             read_sensor();
             if (x & TSL2591_STATUS_NPINTR) {
@@ -122,6 +122,7 @@ void slight_TSL2591AutoSensitivity::read_sensor(void) {
     uint32_t lum = tsl.getFullLuminosity();
     raw_ir = lum >> 16;
     raw_full = lum & 0xFFFF;
+    raw_lux = tsl.calculateLux(raw_full, raw_ir);
 }
 
 void slight_TSL2591AutoSensitivity::handle_out_of_range(void) {
@@ -153,6 +154,12 @@ void slight_TSL2591AutoSensitivity::handle_out_of_range(void) {
         sens_conf_changed_timestamp = millis();
         sens_conf_changed_extra_wait_duration =
             tsl.getTimingInMS(sens_conf_current->integrationtime) * 5;
+        // if (changed > 0) {
+        //     sens_conf_changed_extra_wait_duration =
+        //         tsl.getTimingInMS(sens_conf_current->integrationtime) * 5;
+        // } else {
+        //     sens_conf_changed_extra_wait_duration = 0;
+        // }
         // Serial.println("***");
         // Serial.print("  sens_conf_changed:");
         // Serial.print(sens_conf_changed);
@@ -164,9 +171,8 @@ void slight_TSL2591AutoSensitivity::handle_out_of_range(void) {
 }
 
 void slight_TSL2591AutoSensitivity::update_filter(void) {
-    double lux = tsl.calculateLux(raw_full, raw_ir);
-    // meridian filter
-    value_filter[value_filter_index] = lux;
+    // simple filter
+    value_filter[value_filter_index] = raw_lux;
     value_filter_index += 1;
     if (value_filter_index > value_filter_count) {
         value_filter_index = 0;
@@ -175,7 +181,12 @@ void slight_TSL2591AutoSensitivity::update_filter(void) {
     for (size_t i = 0; i < value_filter_count; i++) {
         temp_sum += value_filter[i];
     }
-    value_lux = temp_sum / value_filter_count;
+    double value_lux_new = temp_sum / value_filter_count;
+    if (value_lux != value_lux_new) {
+        value_lux = value_lux_new;
+        // TODO(s-light): add precision filtering
+        // TODO(s-light): add event generation
+    }
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -212,10 +223,6 @@ uint8_t slight_TSL2591AutoSensitivity::get_sensitivity_config_changed() {
 void slight_TSL2591AutoSensitivity::reset_sensitivity_config_changed() {
     sens_conf_changed = 0;
 }
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// custom tsl functions
-
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // helper
@@ -318,6 +325,14 @@ void slight_TSL2591AutoSensitivity::print_status(Print &out) {
         #error “currently this lib supports only AVR or SAMD.”
     #endif
     out.print(buffer);
+}
+
+uint16_t slight_TSL2591AutoSensitivity::get_raw_ir(void) {
+    return raw_ir;
+}
+
+uint16_t slight_TSL2591AutoSensitivity::get_raw_full(void) {
+    return raw_full;
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
