@@ -261,8 +261,7 @@ uint16_t Adafruit_TSL2591::gainAsInt(tsl2591Gain_t gain)
 
 /************************************************************************/
 /*!
-    @brief  get gain as integer (human readable)
-    @param gain {@link tsl2591Gain_t} gain value
+    @brief  get current gain as integer (human readable)
     @returns gain value as integer
 */
 /**************************************************************************/
@@ -340,7 +339,8 @@ tsl2591IntegrationTime_t Adafruit_TSL2591::getTiming()
 
 /************************************************************************/
 /*!
-    @brief  get sensor integration time in milliseconds
+    @brief  get integration time in milliseconds
+    @param {@link tsl2591IntegrationTime_t} integration time
     @returns integration time in milliseconds
 */
 /**************************************************************************/
@@ -362,7 +362,8 @@ uint16_t Adafruit_TSL2591::getTimingInMS()
 
 /************************************************************************/
 /*!
-    @brief  get sensor max adc counts for current integration time
+    @brief  get sensor max adc counts for given integration time
+    @param {@link tsl2591IntegrationTime_t} integration time
     @returns max adc counts
 */
 /**************************************************************************/
@@ -932,6 +933,7 @@ void Adafruit_TSL2591::setConfig(tsl2591Config_t *config) {
 /************************************************************************/
 /*!
     @brief  print all config parameters in human readable form
+    @param  out {@link Print} reference to Serial to be used
     @param  config {@link tsl2591Config_t} pointer to configuration
 */
 /**************************************************************************/
@@ -979,6 +981,7 @@ void Adafruit_TSL2591::printConfig(Print &out, tsl2591Config_t *config) {
 /************************************************************************/
 /*!
     @brief  print all current config parameters in human readable form
+    @param  out {@link Print} reference to Serial to be used
 */
 /**************************************************************************/
 void Adafruit_TSL2591::printConfig(Print &out) {

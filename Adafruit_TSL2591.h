@@ -183,14 +183,17 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // sensitivity config
+  /*!
+    @brief  struct to store all the sensor configuration parameters
+  */
   struct tsl2591Config_t {
-      tsl2591Gain_t gain;
-      tsl2591IntegrationTime_t integrationtime;
-      uint16_t AINT_threshold_lower;
-      uint16_t AINT_threshold_upper;
-      tsl2591Persist_t AINT_persistance;
-      uint16_t NPINTR_threshold_lower;
-      uint16_t NPINTR_threshold_upper;
+      tsl2591Gain_t gain;  ///< sensor gain {@link tsl2591Gain_t}
+      tsl2591IntegrationTime_t integrationtime;  ///< sensor integration time {@link tsl2591IntegrationTime_t}
+      uint16_t AINT_threshold_lower;  ///< sensor AINT threshold lower
+      uint16_t AINT_threshold_upper;  ///< sensor AINT threshold upper
+      tsl2591Persist_t AINT_persistance;  ///< sensor AINT persistance  {@link tsl2591Persist_t}
+      uint16_t NPINTR_threshold_lower;  ///< sensor NPINTR threshold lower
+      uint16_t NPINTR_threshold_upper;  ///< sensor NPINTR threshold upper
   };
 
   void setConfig(tsl2591Config_t *config);
