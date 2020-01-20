@@ -45,7 +45,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ******************************************************************************/
 
-#include "slight_TSL2591AutoSensitivity.h"
+#include <slight_TSL2591AutoSensitivity.h>
 
 // Ambient Light Sensor
 // TSL2591

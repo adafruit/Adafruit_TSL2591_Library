@@ -38,7 +38,7 @@
 
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
-#include "Adafruit_TSL2591.h"
+#include <Adafruit_TSL2591.h>
 
 // Example for demonstrating the TSL2591 library - public domain!
 
