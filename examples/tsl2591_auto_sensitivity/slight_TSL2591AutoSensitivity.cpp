@@ -227,6 +227,38 @@ void slight_TSL2591AutoSensitivity::reset_sensitivity_config_changed() {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // helper
 
+size_t print_float(Print &out, float value, size_t leading, size_t precision) {
+    // const size_t buffer_length = leading + 1 + precision;
+    char buffer[20];
+    size_t chars_printed = 0;
+    #if ( \
+        defined(ARDUINO_ARCH_SAMD) \
+        || defined(ARDUINO_ARCH_ESP32) \
+        || defined(ARDUINO_ARCH_ESP8266) \
+    )
+        // enable float for printf
+        // https://github.com/arduino/ArduinoCore-samd/issues/217
+        asm(".global _printf_float");
+        snprintf(
+            buffer, sizeof(buffer),
+            "%*.*f",
+            leading,
+            precision,
+            value);
+        chars_printed = out.print(buffer);
+    #else
+        #if defined(ARDUINO_ARCH_AVR)
+            // https://stackoverflow.com/a/27652012/574981
+            dtostrf(value, leading, precision, buffer);
+            chars_printed = out.print(buffer);
+        #else
+            // fallback to non aligned Serial.print()
+            chars_printed = out.print(value, precision);
+        #endif
+    #endif
+    return chars_printed;
+}
+
 void slight_TSL2591AutoSensitivity::sensor_print_details(Print &out) {
     sensor_t sensor;
     tsl.getSensor(&sensor);
@@ -297,34 +329,15 @@ void slight_TSL2591AutoSensitivity::print_status(Print &out) {
 
     char buffer[] =
         "IR: 65535  Full: 65535  Visible: 65535  Lux: 88000.0000     \0";
-    #if defined(ARDUINO_ARCH_AVR)
-        // https://stackoverflow.com/a/27652012/574981
-        int chars_written = snprintf(
-            buffer, sizeof(buffer),
-            "IR: %5u  Full: %5u  Visible: %5u  Lux: ",
-            ir,
-            full,
-            (full-ir));
-        if (chars_written > 0) {
-            dtostrf(tsl.calculateLux(full, ir), 5, 4, buffer+chars_written);
-        }
-    #elif defined(ARDUINO_ARCH_SAMD)
-        // enable float for printf
-        // https://github.com/arduino/ArduinoCore-samd/issues/217
-        asm(".global _printf_float");
-        snprintf(
-            buffer, sizeof(buffer),
-            "IR: %5u  Full: %5u  "
-            // "Visible: %5u  "
-            "Lux: %5.4f",
-            ir,
-            full,
-            // (full-ir),
-            tsl.calculateLux(full, ir));
-    #else
-        #error “currently this lib supports only AVR or SAMD.”
-    #endif
+    snprintf(
+        buffer, sizeof(buffer),
+        "IR: %5u  "
+        "Full: %5u  "
+        "Lux: ",
+        ir,
+        full);
     out.print(buffer);
+    print_float(out, tsl.calculateLux(full, ir), 5, 4);
 }
 
 uint16_t slight_TSL2591AutoSensitivity::get_raw_ir(void) {

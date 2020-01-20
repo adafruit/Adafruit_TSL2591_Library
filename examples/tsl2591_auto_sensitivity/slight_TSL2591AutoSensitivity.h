@@ -250,6 +250,8 @@ public:
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // helper
+    static size_t print_float(
+        Print &out, float value, size_t leading, size_t precision);
     void sensor_print_details(Print &out);
     void print_status(Print &out);
     // uint32_t last_action = 0;
