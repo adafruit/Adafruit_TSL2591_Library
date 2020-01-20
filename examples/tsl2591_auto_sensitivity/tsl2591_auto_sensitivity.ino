@@ -56,22 +56,72 @@ SOFTWARE.
 //      GROUND → common ground
 slight_TSL2591AutoSensitivity als = slight_TSL2591AutoSensitivity();
 
+void setup_als(Print &out) {
+    out.println("Ambient Light Sensor:");
+    if (als.begin(out)) {
+        out.println(F("found TSL2591 sensor"));
+        out.println(F("------------------------------------------"));
+        als.sensor_print_details(out);
+        out.println(F("------------------------------------------"));
+        als.tsl.printConfig(out);
+        out.println(F("------------------------------------------"));
+    } else {
+        out.println("No sensor found. → please check your wiring..");
+    }
+    out.println();
+}
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // debug out
 uint32_t timeStamp_debugout = millis();
 
 void debugout(Print &out) {
-    while((millis() - timeStamp_debugout) > 270) {
+    while((millis() - timeStamp_debugout) > 1000) {
         char buffer[] = "[1234567890ms]   \0";
         snprintf(
             buffer, sizeof(buffer),
             "[%8lums] ", millis());
         out.print(buffer);
 
-        als.print_status(out);
+        out.print("  value_lux:");
+        out.print(als.value_lux, 4);
+
+        out.print("      id:");
+        out.print(als.get_sensitivity_config_id());
+        // out.print("");
+
+        // als.print_status(out);
         out.println();
 
         timeStamp_debugout = millis();
+    }
+}
+
+void handle_sens_conf_change(Print &out) {
+    if (als.get_sensitivity_config_changed()) {
+        out.println("******************************************");
+        char buffer[] = "[1234567890ms]   \0";
+        snprintf(
+            buffer, sizeof(buffer),
+            "%8lums ", millis());
+        out.print(buffer);
+        out.println();
+
+        out.print("");
+        out.print("sens_conf_current_id:");
+        out.print(als.get_sensitivity_config_id());
+        out.println();
+
+        out.print("sens_conf_changed:");
+        out.print(als.get_sensitivity_config_changed());
+        out.println();
+
+        out.println();
+
+        als.tsl.printConfig(out);
+        out.println();
+        out.println("******************************************");
+        als.reset_sensitivity_config_changed();
     }
 }
 
@@ -99,14 +149,11 @@ void setup(void) {
     Serial.println("******************************************");
     Serial.println();
 
-    if (als.begin(Serial)) {
-        Serial.println("Ambient Light Sensor started.");
-    } else {
-        Serial.println("No sensor found ... check your wiring?");
-    }
+    setup_als(Serial);
 }
 
 void loop(void) {
     als.update();
+    handle_sens_conf_change(Serial);
     debugout(Serial);
 }

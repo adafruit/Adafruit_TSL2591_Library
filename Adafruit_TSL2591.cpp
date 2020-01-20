@@ -936,35 +936,6 @@ void Adafruit_TSL2591::setConfig(tsl2591Config_t *config) {
 */
 /**************************************************************************/
 void Adafruit_TSL2591::printConfig(Print &out, tsl2591Config_t *config) {
-    // Display the gain and integration time for reference sake
-    // out.println("------------------------------------");
-    // out.print("Gain:         ");
-    // printGain(out, config->gain);
-    // out.println();
-    // out.print("Timing:       ");
-    // out.print(getTimingInMS(config->integrationtime));
-    // out.println(" ms");
-    // out.print("Max ADC Counts: ");
-    // out.print(getMaxADCCounts(config->integrationtime));
-    // out.println();
-    // // Display the interrupt threshold window
-    // out.print("AINT Threshold Window: ");
-    // out.print(config->AINT_threshold_lower, DEC);
-    // out.print(" to ");
-    // out.print(config->AINT_threshold_upper, DEC);
-    // out.print(" with persist ");
-    // printPersistance(out, config->AINT_persistance);
-    // out.println();
-    // out.print("NPINTR Threshold Window: ");
-    // out.print(config->NPINTR_threshold_lower, DEC);
-    // out.print(" to ");
-    // out.print(config->NPINTR_threshold_upper, DEC);
-    // out.println();
-    // out.println("------------------------------------");
-    // out.println();
-
-
-    out.println("------------------------------------");
     char buffer[] =
         "NPINTR Threshold Window: 88000 to 88000 with persistence 22   \0";
     snprintf(
@@ -973,12 +944,15 @@ void Adafruit_TSL2591::printConfig(Print &out, tsl2591Config_t *config) {
         "Gain:",
         gainAsInt(config->gain));
     out.println(buffer);
+    // printGain(out);
+    // out.println();
     snprintf(
         buffer, sizeof(buffer),
         "%-25s %5u",
         "Integration Time:",
         getTimingInMS(config->integrationtime));
     out.println(buffer);
+    // out.println(getTimingInMS());
     snprintf(
         buffer, sizeof(buffer),
         "%-25s %5u",
@@ -987,7 +961,7 @@ void Adafruit_TSL2591::printConfig(Print &out, tsl2591Config_t *config) {
     out.println(buffer);
     snprintf(
         buffer, sizeof(buffer),
-        "%-25s %5u to %5u with persist %2u",
+        "%-25s %5u to %5u (%2ux)",
         "AINT Threshold Window:",
         config->AINT_threshold_lower,
         config->AINT_threshold_upper,
@@ -1000,7 +974,6 @@ void Adafruit_TSL2591::printConfig(Print &out, tsl2591Config_t *config) {
         config->NPINTR_threshold_lower,
         config->NPINTR_threshold_upper);
     out.println(buffer);
-    out.println("------------------------------------");
 }
 
 /************************************************************************/

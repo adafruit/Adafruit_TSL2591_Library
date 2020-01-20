@@ -52,22 +52,30 @@ public:
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // basic library api
-    bool begin(Stream &out);
+    bool begin(Print &out);
     void update();
     void end();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // objects
-    Adafruit_TSL2591 tsl = Adafruit_TSL2591(42);
-
-    // config
-    void configure_sensor(Print &out);
+    Adafruit_TSL2591 tsl = Adafruit_TSL2591();
 
     // handling
     void read_sensor(void);
+    void handle_out_of_range(void);
+    void update_filter(void);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // sensitivity config
+
+    void set_sensitivity_config(uint8_t config_id);
+    void set_sensitivity_config(uint8_t config_id, Print &out);
+
+    uint8_t get_sensitivity_config_id();
+
+    uint8_t get_sensitivity_config_changed();
+    void reset_sensitivity_config_changed();
+
     // struct sensitivity_config_t {
     //     tsl2591Gain_t gain;
     //     tsl2591IntegrationTime_t integrationtime;
@@ -78,9 +86,9 @@ public:
     //     uint16_t NPINTR_threshold_upper;
     // };
 
-    static const uint8_t sensitivity_configs_count = 12;
-        // sizeof(sensitivity_configs) / sizeof(sensitivity_config_t);
-    Adafruit_TSL2591::tsl2591Config_t sensitivity_configs[sensitivity_configs_count] = {
+    static const uint8_t sens_conf_count = 15;
+        // sizeof(sens_conf) / sizeof(sensitivity_config_t);
+    Adafruit_TSL2591::tsl2591Config_t sens_conf[sens_conf_count] = {
         // 0 bright sun
         {
             TSL2591_GAIN_LOW,
@@ -91,6 +99,8 @@ public:
             1000,
             TSL2591_MAX_ADC_COUNT_100MS
         },
+        // ------------------------------------------
+        // GAIN MED
         // 1 dailight
         {
             TSL2591_GAIN_MED,
@@ -111,6 +121,8 @@ public:
             100,
             TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
         },
+        // ------------------------------------------
+        // GAIN HIGH
         // 3
         {
             TSL2591_GAIN_HIGH,
@@ -143,6 +155,38 @@ public:
         },
         // 6
         {
+            TSL2591_GAIN_HIGH,
+            TSL2591_INTEGRATIONTIME_400MS,
+            0,
+            0,
+            TSL2591_PERSIST_EVERY,
+            100,
+            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+        },
+        // 7
+        {
+            TSL2591_GAIN_HIGH,
+            TSL2591_INTEGRATIONTIME_500MS,
+            0,
+            0,
+            TSL2591_PERSIST_EVERY,
+            100,
+            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+        },
+        // 8
+        {
+            TSL2591_GAIN_HIGH,
+            TSL2591_INTEGRATIONTIME_600MS,
+            0,
+            0,
+            TSL2591_PERSIST_EVERY,
+            100,
+            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+        },
+        // ------------------------------------------
+        // GAIN MAX
+        // 9
+        {
             TSL2591_GAIN_MAX,
             TSL2591_INTEGRATIONTIME_100MS,
             0,
@@ -151,7 +195,7 @@ public:
             100,
             TSL2591_MAX_ADC_COUNT_100MS-1000
         },
-        // 7
+        // 10
         {
             TSL2591_GAIN_MAX,
             TSL2591_INTEGRATIONTIME_200MS,
@@ -161,7 +205,7 @@ public:
             100,
             TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
         },
-        // 8
+        // 11
         {
             TSL2591_GAIN_MAX,
             TSL2591_INTEGRATIONTIME_300MS,
@@ -169,29 +213,29 @@ public:
             0,
             TSL2591_PERSIST_EVERY,
             100,
-            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+            2000
         },
-        // 9
+        // 12
         {
             TSL2591_GAIN_MAX,
             TSL2591_INTEGRATIONTIME_400MS,
             0,
             0,
             TSL2591_PERSIST_EVERY,
-            100,
-            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+            50,
+            2000
         },
-        // 10
+        // 13
         {
             TSL2591_GAIN_MAX,
             TSL2591_INTEGRATIONTIME_500MS,
             0,
             0,
             TSL2591_PERSIST_EVERY,
-            100,
-            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+            50,
+            1000
         },
-        // 11
+        // 14
         {
             TSL2591_GAIN_MAX,
             TSL2591_INTEGRATIONTIME_600MS,
@@ -199,7 +243,7 @@ public:
             0,
             TSL2591_PERSIST_EVERY,
             0,
-            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+            1000
         }
     };
 
@@ -212,7 +256,16 @@ public:
 
     double value_lux = 0.0;
 private:
-    bool ready;
+    bool ready = false;
+
+    uint16_t raw_ir = 0;
+    uint16_t raw_full = 0;
+
+    uint8_t sens_conf_current_id = 9;
+    Adafruit_TSL2591::tsl2591Config_t *sens_conf_current;
+    int8_t sens_conf_changed = 0;
+    uint32_t sens_conf_changed_timestamp = 0;
+    uint32_t sens_conf_changed_extra_wait_duration = 0;
 
     static const uint8_t value_filter_count = 10;
     double value_filter[value_filter_count];

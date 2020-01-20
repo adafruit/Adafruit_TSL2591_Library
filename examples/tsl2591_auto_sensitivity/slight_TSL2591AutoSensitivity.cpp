@@ -54,27 +54,20 @@ slight_TSL2591AutoSensitivity::~slight_TSL2591AutoSensitivity() {
     end();
 }
 
-bool slight_TSL2591AutoSensitivity::begin(Stream &out) {
+bool slight_TSL2591AutoSensitivity::begin(Print &out) {
     // clean up..
     end();
     // start up...
     if (ready == false) {
         // setup
         if (tsl.begin()) {
-            out.println(F("found TSL2591 sensor"));
-
-            sensor_print_details(out);
-
-            // configure_sensor(out);
-            tsl.printConfig(out);
-            out.println();
-
+            // tsl.printConfig(out, & sens_conf[0]);
+            // tsl.printConfig(out, & sens_conf[3]);
+            set_sensitivity_config(sens_conf_current_id, out);
             tsl.enable();
-
             // enable
             ready = true;
         } else {
-            out.println(F("no sensor found ... check your wiring?"));
             ready = false;
         }
     }
@@ -100,11 +93,17 @@ void slight_TSL2591AutoSensitivity::update() {
             && (x & TSL2591_STATUS_AINT)
         ) {
             // valid reading
+            print_status(Serial);
+            Serial.println();
+            tsl.clearInterrupt();
+            read_sensor();
             if (x & TSL2591_STATUS_NPINTR) {
-                // out of bounds
+                uint32_t duration = millis() - sens_conf_changed_timestamp;
+                if (duration > sens_conf_changed_extra_wait_duration) {
+                    handle_out_of_range();
+                }
             } else {
-                // read
-                read_sensor();
+                update_filter();
                 // if (value_lux > 300) {
                 //     /* code */
                 // }
@@ -121,10 +120,53 @@ void slight_TSL2591AutoSensitivity::read_sensor(void) {
     // Read 32 bits with top 16 bits IR, bottom 16 bits full spectrum
     // That way you can do whatever math and comparisons you want!
     uint32_t lum = tsl.getFullLuminosity();
-    uint16_t ir, full;
-    ir = lum >> 16;
-    full = lum & 0xFFFF;
-    value_filter[value_filter_index] = tsl.calculateLux(full, ir);
+    raw_ir = lum >> 16;
+    raw_full = lum & 0xFFFF;
+}
+
+void slight_TSL2591AutoSensitivity::handle_out_of_range(void) {
+    uint8_t config_id_new =  sens_conf_current_id;
+    uint16_t config_lower =  sens_conf_current->NPINTR_threshold_lower;
+    uint16_t config_upper =  sens_conf_current->NPINTR_threshold_upper;
+    int8_t changed = 0;
+    if (raw_full < config_lower) {
+        // switch to higher id = more sensitiv
+        if (config_id_new <  sens_conf_count-1) {
+            config_id_new += 1;
+            changed = 1;
+        }
+    } else {
+        if (raw_full > config_upper) {
+            // switch to lower id = less sensitiv
+            if (config_id_new > 0) {
+                config_id_new -= 1;
+                changed = -1;
+            }
+        }
+    }
+    if (sens_conf_current_id != config_id_new) {
+        // new configuration!!
+        sens_conf_current_id = config_id_new;
+        set_sensitivity_config(sens_conf_current_id);
+        // set flag
+        sens_conf_changed += changed;
+        sens_conf_changed_timestamp = millis();
+        sens_conf_changed_extra_wait_duration =
+            tsl.getTimingInMS(sens_conf_current->integrationtime) * 5;
+        // Serial.println("***");
+        // Serial.print("  sens_conf_changed:");
+        // Serial.print(sens_conf_changed);
+        // Serial.print(";  sens_conf_current_id:");
+        // Serial.print(sens_conf_current_id);
+        // Serial.println();
+        // Serial.println("***");
+    }
+}
+
+void slight_TSL2591AutoSensitivity::update_filter(void) {
+    double lux = tsl.calculateLux(raw_full, raw_ir);
+    // meridian filter
+    value_filter[value_filter_index] = lux;
     value_filter_index += 1;
     if (value_filter_index > value_filter_count) {
         value_filter_index = 0;
@@ -134,71 +176,41 @@ void slight_TSL2591AutoSensitivity::read_sensor(void) {
         temp_sum += value_filter[i];
     }
     value_lux = temp_sum / value_filter_count;
-
-    tsl.clearInterrupt();
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // config
 
-void slight_TSL2591AutoSensitivity::configure_sensor(Print &out) {
-    out.println("configure_sensor...");
-    // You can change the gain on the fly,
-    // to adapt to brighter/dimmer light situations
-    // tsl.setGain(TSL2591_GAIN_LOW);    // 1x gain (bright light)
-    tsl.setGain(TSL2591_GAIN_MED);    // 25x gain
-    // tsl.setGain(TSL2591_GAIN_HIGH);   // 428x gain
-    // tsl.setGain(TSL2591_GAIN_MAX);    // 9876x gain
+void slight_TSL2591AutoSensitivity::set_sensitivity_config(uint8_t config_id) {
+     sens_conf_current_id = config_id;
+     sens_conf_current =
+        & sens_conf[ sens_conf_current_id];
+    tsl.setConfig(sens_conf_current);
+}
 
-    // Changing the integration time gives
-    // you a longer time over which to sense light
-    // longer timelines are slower, but are good in very low light situtations!
-    // shortest integration time (bright light)
-    // tsl.setTiming(TSL2591_INTEGRATIONTIME_100MS);
-    // tsl.setTiming(TSL2591_INTEGRATIONTIME_200MS);
-    // tsl.setTiming(TSL2591_INTEGRATIONTIME_300MS);
-    // tsl.setTiming(TSL2591_INTEGRATIONTIME_400MS);
-    tsl.setTiming(TSL2591_INTEGRATIONTIME_500MS);
-    // tsl.setTiming(TSL2591_INTEGRATIONTIME_600MS);
-    // longest integration time (dim light)
+void slight_TSL2591AutoSensitivity::set_sensitivity_config(
+    uint8_t config_id, Print &out
+) {
+    // out.println("current config:");
+    // tsl.printConfig(out);
+    out.print("set config '");
+    out.print(config_id);
+    out.println("' ..");
+    set_sensitivity_config(config_id);
+    out.println("current config:");
+    tsl.printConfig(out);
+}
 
-    // AINT persistance
-    // TSL2591_PERSIST_EVERY → Every ALS cycle generates an interrupt
-    // TSL2591_PERSIST_ANY → Fire on Any value outside of threshold range
-    // TSL2591_PERSIST_2 → Require at least 2 samples outside of range to fire
-    // TSL2591_PERSIST_3 → Require at least 3 samples outside of range to fire
-    // TSL2591_PERSIST_5 → Require at least 5 samples outside of range to fire
-    // TSL2591_PERSIST_10 → Require at least 10 samples outside of range to fire
-    // TSL2591_PERSIST_15 → Require at least 15 samples outside of range to fire
-    // TSL2591_PERSIST_nn → in steps of 5
-    // TSL2591_PERSIST_60 → Require at least 60 samples outside of range to fire
+uint8_t slight_TSL2591AutoSensitivity::get_sensitivity_config_id() {
+    return sens_conf_current_id;
+}
 
-    // this combination would be helpfull to:
-    // AINT: set a custom range with some smoothing
-    // NPINTR: out of range → check gain and integrationtime
-    // const uint16_t AINT_threshold_lower = 50;
-    // const uint16_t AINT_threshold_upper = 3000;
-    // const tsl2591Persist_t AINT_persistance = TSL2591_PERSIST_20;
-    // const uint16_t NPINTR_threshold_lower = 1;
-    // const uint16_t NPINTR_threshold_upper = 0xFFFF-1;
+uint8_t slight_TSL2591AutoSensitivity::get_sensitivity_config_changed() {
+    return sens_conf_changed;
+}
 
-    // this combination would be helpfull to:
-    // AINT: a new value is available
-    // NPINTR: nearly out of range → check gain and integrationtime
-    const uint16_t AINT_threshold_lower = 0;
-    const uint16_t AINT_threshold_upper = 0;
-    const tsl2591Persist_t AINT_persistance = TSL2591_PERSIST_EVERY;
-    const uint16_t NPINTR_threshold_lower = 100;
-    const uint16_t NPINTR_threshold_upper =  tsl.getMaxADCCounts() - 200;;
-
-    tsl.clearInterrupt();
-    tsl.setALSInterruptThresholds(
-        AINT_threshold_lower, AINT_threshold_upper, AINT_persistance);
-    tsl.setNPInterruptThresholds(
-        NPINTR_threshold_lower, NPINTR_threshold_upper);
-    tsl.clearInterrupt();
-
-    // print_config(out);
+void slight_TSL2591AutoSensitivity::reset_sensitivity_config_changed() {
+    sens_conf_changed = 0;
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -211,7 +223,6 @@ void slight_TSL2591AutoSensitivity::configure_sensor(Print &out) {
 void slight_TSL2591AutoSensitivity::sensor_print_details(Print &out) {
     sensor_t sensor;
     tsl.getSensor(&sensor);
-    out.println(F("------------------------------------"));
     out.print(F("Sensor:     "));
     out.println(sensor.name);
     out.print(F("Driver Ver: "));
@@ -227,21 +238,10 @@ void slight_TSL2591AutoSensitivity::sensor_print_details(Print &out) {
     out.print(F("Resolution: "));
     out.print(sensor.resolution, 4);
     out.println(F(" lux"));
-    out.println(F("------------------------------------"));
 }
 
 void slight_TSL2591AutoSensitivity::print_status(Print &out) {
-    // uint32_t duration = millis() - last_action;
-    // last_action = millis();
-    // Serial.print(F("[ "));
-    // Serial.print(millis());
-    // Serial.print(F(" ms ]"));
-    // Serial.print(F(" ("));
-    // Serial.print(duration);
-    // Serial.print(F(" ms) "));
-
     uint8_t x = tsl.getStatus();
-
     // Serial.print("status: '");
     // Serial.print(x, HEX);
     // Serial.print("  ");
@@ -290,7 +290,6 @@ void slight_TSL2591AutoSensitivity::print_status(Print &out) {
 
     char buffer[] =
         "IR: 65535  Full: 65535  Visible: 65535  Lux: 88000.0000     \0";
-
     #if defined(ARDUINO_ARCH_AVR)
         // https://stackoverflow.com/a/27652012/574981
         int chars_written = snprintf(
@@ -308,18 +307,17 @@ void slight_TSL2591AutoSensitivity::print_status(Print &out) {
         asm(".global _printf_float");
         snprintf(
             buffer, sizeof(buffer),
-            "IR: %5u  Full: %5u  Visible: %5u  Lux: %5.4f",
+            "IR: %5u  Full: %5u  "
+            // "Visible: %5u  "
+            "Lux: %5.4f",
             ir,
             full,
-            (full-ir),
+            // (full-ir),
             tsl.calculateLux(full, ir));
     #else
         #error “currently this lib supports only AVR or SAMD.”
     #endif
-
     out.print(buffer);
-
-    tsl.clearInterrupt();
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
