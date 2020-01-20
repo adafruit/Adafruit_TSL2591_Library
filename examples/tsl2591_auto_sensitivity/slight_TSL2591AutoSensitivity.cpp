@@ -348,6 +348,10 @@ uint16_t slight_TSL2591AutoSensitivity::get_raw_full(void) {
     return raw_full;
 }
 
+double slight_TSL2591AutoSensitivity::get_raw_lux(void) {
+    return raw_lux;
+}
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // THE END
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

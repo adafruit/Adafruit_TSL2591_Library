@@ -257,6 +257,7 @@ public:
     // uint32_t last_action = 0;
     uint16_t get_raw_ir();
     uint16_t get_raw_full();
+    double get_raw_lux();
 
     double value_lux = 0.0;
 private:
