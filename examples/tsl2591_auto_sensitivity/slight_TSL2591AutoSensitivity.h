@@ -78,11 +78,135 @@ public:
     //     uint16_t NPINTR_threshold_upper;
     // };
 
-    // sensitivity_config_t sensitivity_0 = {};
+    static const uint8_t sensitivity_configs_count = 12;
+        // sizeof(sensitivity_configs) / sizeof(sensitivity_config_t);
+    Adafruit_TSL2591::tsl2591Config_t sensitivity_configs[sensitivity_configs_count] = {
+        // 0 bright sun
+        {
+            TSL2591_GAIN_LOW,
+            TSL2591_INTEGRATIONTIME_100MS,
+            0,
+            0,
+            TSL2591_PERSIST_EVERY,
+            1000,
+            TSL2591_MAX_ADC_COUNT_100MS
+        },
+        // 1 dailight
+        {
+            TSL2591_GAIN_MED,
+            TSL2591_INTEGRATIONTIME_100MS,
+            0,
+            0,
+            TSL2591_PERSIST_EVERY,
+            100,
+            TSL2591_MAX_ADC_COUNT_100MS-1000
+        },
+        // 2 cloudy
+        {
+            TSL2591_GAIN_MED,
+            TSL2591_INTEGRATIONTIME_200MS,
+            0,
+            0,
+            TSL2591_PERSIST_EVERY,
+            100,
+            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+        },
+        // 3
+        {
+            TSL2591_GAIN_HIGH,
+            TSL2591_INTEGRATIONTIME_100MS,
+            0,
+            0,
+            TSL2591_PERSIST_EVERY,
+            100,
+            TSL2591_MAX_ADC_COUNT_100MS-1000
+        },
+        // 4
+        {
+            TSL2591_GAIN_HIGH,
+            TSL2591_INTEGRATIONTIME_200MS,
+            0,
+            0,
+            TSL2591_PERSIST_EVERY,
+            100,
+            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+        },
+        // 5
+        {
+            TSL2591_GAIN_HIGH,
+            TSL2591_INTEGRATIONTIME_300MS,
+            0,
+            0,
+            TSL2591_PERSIST_EVERY,
+            100,
+            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+        },
+        // 6
+        {
+            TSL2591_GAIN_MAX,
+            TSL2591_INTEGRATIONTIME_100MS,
+            0,
+            0,
+            TSL2591_PERSIST_EVERY,
+            100,
+            TSL2591_MAX_ADC_COUNT_100MS-1000
+        },
+        // 7
+        {
+            TSL2591_GAIN_MAX,
+            TSL2591_INTEGRATIONTIME_200MS,
+            0,
+            0,
+            TSL2591_PERSIST_EVERY,
+            100,
+            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+        },
+        // 8
+        {
+            TSL2591_GAIN_MAX,
+            TSL2591_INTEGRATIONTIME_300MS,
+            0,
+            0,
+            TSL2591_PERSIST_EVERY,
+            100,
+            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+        },
+        // 9
+        {
+            TSL2591_GAIN_MAX,
+            TSL2591_INTEGRATIONTIME_400MS,
+            0,
+            0,
+            TSL2591_PERSIST_EVERY,
+            100,
+            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+        },
+        // 10
+        {
+            TSL2591_GAIN_MAX,
+            TSL2591_INTEGRATIONTIME_500MS,
+            0,
+            0,
+            TSL2591_PERSIST_EVERY,
+            100,
+            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+        },
+        // 11
+        {
+            TSL2591_GAIN_MAX,
+            TSL2591_INTEGRATIONTIME_600MS,
+            0,
+            0,
+            TSL2591_PERSIST_EVERY,
+            0,
+            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+        }
+    };
+
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // helper
-    void tsl_print_details(Print &out);
+    void sensor_print_details(Print &out);
     void print_status(Print &out);
     // uint32_t last_action = 0;
 

@@ -245,17 +245,17 @@ void slight_TSL2591AutoSensitivity::print_status(Print &out) {
     // Serial.print("status: '");
     // Serial.print(x, HEX);
     // Serial.print("  ");
-    Serial.print("'");
-    // for (size_t i = 0; i < 8; i++) {
-    //     if (bitRead(x, 7-i)) {
-    for (size_t i = 8; i > 0; i--) {
-        if (bitRead(x, i-1)) {
-            Serial.print("1");
-        } else {
-            Serial.print("0");
-        }
-    }
-    Serial.print("' ");
+    // Serial.print("'");
+    // // for (size_t i = 0; i < 8; i++) {
+    // //     if (bitRead(x, 7-i)) {
+    // for (size_t i = 8; i > 0; i--) {
+    //     if (bitRead(x, i-1)) {
+    //         Serial.print("1");
+    //     } else {
+    //         Serial.print("0");
+    //     }
+    // }
+    // Serial.print("' ");
 
     // print flags
     // bit 0: AVALID = ALS Valid

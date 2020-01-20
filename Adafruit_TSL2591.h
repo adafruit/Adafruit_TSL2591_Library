@@ -211,7 +211,7 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
   void    _writeNPInterruptThresholds();
 
   /*!
-    @brief  internal store for sensor configuration factor
+    @brief  internal store for sensor configuration
   */
   tsl2591Config_t _config;
 
