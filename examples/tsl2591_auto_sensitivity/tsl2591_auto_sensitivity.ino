@@ -2,7 +2,7 @@
 /******************************************************************************
 
     example for usage of slight_TSL2591AutoSensitivity
-    auto-gain & auto Intergrationtime
+    auto-gain & auto integrationtime
     implementation for TSL2591 Digital Light Sensor
 
 

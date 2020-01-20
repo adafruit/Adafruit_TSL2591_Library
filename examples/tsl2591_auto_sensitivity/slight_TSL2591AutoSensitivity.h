@@ -67,7 +67,18 @@ public:
     void read_sensor(void);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // custom tls functions
+    // sensitivity config
+    // struct sensitivity_config_t {
+    //     tsl2591Gain_t gain;
+    //     tsl2591IntegrationTime_t integrationtime;
+    //     uint16_t AINT_threshold_lower;
+    //     uint16_t AINT_threshold_upper;
+    //     tsl2591Persist_t AINT_persistance;
+    //     uint16_t NPINTR_threshold_lower;
+    //     uint16_t NPINTR_threshold_upper;
+    // };
+
+    // sensitivity_config_t sensitivity_0 = {};
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // helper

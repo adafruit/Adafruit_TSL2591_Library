@@ -94,10 +94,10 @@ typedef enum
 }
 tsl2591IntegrationTime_t;
 
-// constants for Max ADC Count at Intergrationtime
+// constants for Max ADC Count at integrationtime
 // datasheet: Figure 8: ALS Characteristics - Max ADC Count
-#define TSL2591_MAX_ADC_COUNT_100MS (36863)  ///< Max ADC Count at Intergrationtime 100ms
-#define TSL2591_MAX_ADC_COUNT_200MS_600MS (65535)  ///< Max ADC Count at Intergrationtime 200ms - 600ms
+#define TSL2591_MAX_ADC_COUNT_100MS (36863)  ///< Max ADC Count at integrationtime 100ms
+#define TSL2591_MAX_ADC_COUNT_200MS_600MS (65535)  ///< Max ADC Count at integrationtime 200ms - 600ms
 
 /// Enumeration for the persistance filter (for interrupts)
 typedef enum
@@ -156,7 +156,9 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
 
   tsl2591IntegrationTime_t getTiming();
   uint16_t                 getTimingInMS();
+  uint16_t                 getTimingInMS(tsl2591IntegrationTime_t integration);
   uint16_t                 getMaxADCCounts();
+  uint16_t                 getMaxADCCounts(tsl2591IntegrationTime_t integration);
   tsl2591Gain_t            getGain();
 
   void        printGain(Print &out);
@@ -176,6 +178,22 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
   bool getEvent  ( sensors_event_t* );
   void getSensor ( sensor_t* );
 
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // sensitivity config
+  struct tsl2591Config_t {
+      tsl2591Gain_t gain;
+      tsl2591IntegrationTime_t integrationtime;
+      uint16_t AINT_threshold_lower;
+      uint16_t AINT_threshold_upper;
+      tsl2591Persist_t AINT_persistance;
+      uint16_t NPINTR_threshold_lower;
+      uint16_t NPINTR_threshold_upper;
+  };
+
+  void setConfig(tsl2591Config_t *config);
+  void printConfig(Print &out, tsl2591Config_t *config);
+  void printConfig(Print &out);
+
  protected:
 
   /*!
@@ -188,14 +206,15 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
   uint16_t  read16  ( uint8_t reg );
   uint8_t   read8   ( uint8_t reg );
 
+  void    _writeIntegrationtimeGain();
+  void    _writeALSInterruptThresholds();
+  void    _writeNPInterruptThresholds();
+
   /*!
-    @brief  internal store for intergration time
+    @brief  internal store for sensor configuration factor
   */
-  tsl2591IntegrationTime_t _integration;
-  /*!
-    @brief  internal store for gain factor
-  */
-  tsl2591Gain_t _gain;
+  tsl2591Config_t _config;
+
   /*!
     @brief  internal store for sensorID
   */

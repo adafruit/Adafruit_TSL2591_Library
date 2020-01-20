@@ -66,8 +66,17 @@ Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID)
 {
   _initialized = false;
   _enabled = false;
-  _integration = TSL2591_INTEGRATIONTIME_100MS;
-  _gain        = TSL2591_GAIN_MED;
+  // _integration = TSL2591_INTEGRATIONTIME_100MS;
+  // _gain        = TSL2591_GAIN_MED;
+
+  _config.gain = TSL2591_GAIN_MED;
+  _config.integrationtime = TSL2591_INTEGRATIONTIME_100MS;
+  _config.AINT_threshold_lower = 0;
+  _config.AINT_threshold_upper = 0;
+  _config.AINT_persistance = TSL2591_PERSIST_EVERY;
+  _config.NPINTR_threshold_lower = 100;
+  _config.NPINTR_threshold_upper = TSL2591_MAX_ADC_COUNT_100MS-100;
+
   _sensorID    = sensorID;
 
   // we cant do wire initialization till later, because we havent loaded Wire yet
@@ -102,9 +111,11 @@ _i2c=theWire;
 
   _initialized = true;
 
-  // Set default integration time and gain
-  setTiming(_integration);
-  setGain(_gain);
+  // Set default configuration
+  setConfig(&_config);
+  // integration time and gain
+  // setTiming(_integration);
+  // setGain(_gain);
 
   // Note: by default, the device is in power down mode on bootup
   disable();
@@ -169,6 +180,31 @@ void Adafruit_TSL2591::disable(void)
 
 /************************************************************************/
 /*!
+    @brief  write gain & integrationtime to chip
+*/
+/**************************************************************************/
+void Adafruit_TSL2591::_writeIntegrationtimeGain()
+{
+  if (!_initialized) {
+    if (!begin()) {
+      return;
+    }
+  }
+
+  boolean was_enabled = _enabled;
+  if (!_enabled) {
+    enable();
+  }
+  write8(
+      TSL2591_COMMAND_BIT | TSL2591_REGISTER_CONTROL,
+      _config.integrationtime | _config.gain);
+  if (!was_enabled) {
+    disable();
+  }
+}
+
+/************************************************************************/
+/*!
     @brief  Setter for sensor light gain
     @param  gain {@link tsl2591Gain_t} gain value
 */
@@ -181,15 +217,8 @@ void Adafruit_TSL2591::setGain(tsl2591Gain_t gain)
     }
   }
 
-  boolean was_enabled = _enabled;
-  if (!_enabled) {
-    enable();
-  }
-  _gain = gain;
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CONTROL, _integration | _gain);
-  if (!was_enabled) {
-    disable();
-  }
+  _config.gain = gain;
+  _writeIntegrationtimeGain();
 }
 
 /************************************************************************/
@@ -200,7 +229,7 @@ void Adafruit_TSL2591::setGain(tsl2591Gain_t gain)
 /**************************************************************************/
 tsl2591Gain_t Adafruit_TSL2591::getGain()
 {
-  return _gain;
+  return _config.gain;
 }
 
 /************************************************************************/
@@ -252,15 +281,8 @@ void Adafruit_TSL2591::setTiming(tsl2591IntegrationTime_t integration)
     }
   }
 
-  boolean was_enabled = _enabled;
-  if (!_enabled) {
-    enable();
-  }
-  _integration = integration;
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CONTROL, _integration | _gain);
-  if (!was_enabled) {
-    disable();
-  }
+  _config.integrationtime = integration;
+  _writeIntegrationtimeGain();
 }
 
 /************************************************************************/
@@ -271,7 +293,18 @@ void Adafruit_TSL2591::setTiming(tsl2591IntegrationTime_t integration)
 /**************************************************************************/
 tsl2591IntegrationTime_t Adafruit_TSL2591::getTiming()
 {
-  return _integration;
+  return _config.integrationtime;
+}
+
+/************************************************************************/
+/*!
+    @brief  get sensor integration time in milliseconds
+    @returns integration time in milliseconds
+*/
+/**************************************************************************/
+uint16_t Adafruit_TSL2591::getTimingInMS(tsl2591IntegrationTime_t integration)
+{
+  return ((integration + 1) * 100);
 }
 
 /************************************************************************/
@@ -282,19 +315,19 @@ tsl2591IntegrationTime_t Adafruit_TSL2591::getTiming()
 /**************************************************************************/
 uint16_t Adafruit_TSL2591::getTimingInMS()
 {
-  return ((_integration + 1) * 100);
+  return getTimingInMS(getTiming());
 }
 
 /************************************************************************/
 /*!
-    @brief  get sensor max adc counts for current intergration time
+    @brief  get sensor max adc counts for current integration time
     @returns max adc counts
 */
 /**************************************************************************/
-uint16_t Adafruit_TSL2591::getMaxADCCounts()
+uint16_t Adafruit_TSL2591::getMaxADCCounts(tsl2591IntegrationTime_t integration)
 {
   uint16_t result = 0;
-  switch (_integration) {
+  switch (integration) {
       case TSL2591_INTEGRATIONTIME_100MS: {
         result = TSL2591_MAX_ADC_COUNT_100MS;
       } break;
@@ -307,6 +340,17 @@ uint16_t Adafruit_TSL2591::getMaxADCCounts()
       } break;
   }
   return result;
+}
+
+/************************************************************************/
+/*!
+    @brief  get sensor max adc counts for current integration time
+    @returns max adc counts
+*/
+/**************************************************************************/
+uint16_t Adafruit_TSL2591::getMaxADCCounts()
+{
+  return getMaxADCCounts(getTiming());
 }
 
 /************************************************************************/
@@ -333,7 +377,7 @@ float Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
   // Note: This algorithm is based on preliminary coefficients
   // provided by AMS and may need to be updated in the future
 
-  switch (_integration)
+  switch (_config.integrationtime)
   {
     case TSL2591_INTEGRATIONTIME_100MS :
       atime = 100.0F;
@@ -353,12 +397,12 @@ float Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
     case TSL2591_INTEGRATIONTIME_600MS :
       atime = 600.0F;
       break;
-    default: // 100ms
+    default:  // 100ms
       atime = 100.0F;
       break;
   }
 
-  switch (_gain)
+  switch (_config.gain)
   {
     case TSL2591_GAIN_LOW :
       again = 1.0F;
@@ -381,16 +425,16 @@ float Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1)
   cpl = (atime * again) / TSL2591_LUX_DF;
 
   // Original lux calculation (for reference sake)
-  //lux1 = ( (float)ch0 - (TSL2591_LUX_COEFB * (float)ch1) ) / cpl;
-  //lux2 = ( ( TSL2591_LUX_COEFC * (float)ch0 ) - ( TSL2591_LUX_COEFD * (float)ch1 ) ) / cpl;
-  //lux = lux1 > lux2 ? lux1 : lux2;
+  // lux1 = ( (float)ch0 - (TSL2591_LUX_COEFB * (float)ch1) ) / cpl;
+  // lux2 = ( ( TSL2591_LUX_COEFC * (float)ch0 ) - ( TSL2591_LUX_COEFD * (float)ch1 ) ) / cpl;
+  // lux = lux1 > lux2 ? lux1 : lux2;
 
   // Alternate lux calculation 1
   // See: https://github.com/adafruit/Adafruit_TSL2591_Library/issues/14
   lux = ( ((float)ch0 - (float)ch1 )) * (1.0F - ((float)ch1/(float)ch0) ) / cpl;
 
   // Alternate lux calculation 2
-  //lux = ( (float)ch0 - ( 1.7F * (float)ch1 ) ) / cpl;
+  // lux = ( (float)ch0 - ( 1.7F * (float)ch1 ) ) / cpl;
 
   // Signal I2C had no errors
   return lux;
@@ -414,7 +458,7 @@ uint32_t Adafruit_TSL2591::getFullLuminosity (void)
   if (!_enabled) {
     enable();
     // Wait x ms for ADC to complete
-    for (uint8_t d=0; d<=_integration; d++)
+    for (uint8_t d=0; d<=_config.integrationtime; d++)
     {
       delay(120);
     }
@@ -483,12 +527,9 @@ void Adafruit_TSL2591::registerInterrupt(uint16_t lowerThreshold, uint16_t upper
 /************************************************************************/
 /*!
     @brief  set up the ALS interrupt thresholds (interrupt generated when light level is outside the lower/upper range for long enough).
-    @param  lowerThreshold Raw light data reading level that is the lower value threshold for interrupt
-    @param  upperThreshold Raw light data reading level that is the higher value threshold for interrupt
-    @param  persist How many counts we must be outside range for interrupt to fire, default is any single value
 */
 /**************************************************************************/
-void Adafruit_TSL2591::setALSInterruptThresholds(uint16_t lowerThreshold, uint16_t upperThreshold, tsl2591Persist_t persist = TSL2591_PERSIST_ANY)
+void Adafruit_TSL2591::_writeALSInterruptThresholds()
 {
   if (!_initialized) {
     if (!begin()) {
@@ -500,11 +541,72 @@ void Adafruit_TSL2591::setALSInterruptThresholds(uint16_t lowerThreshold, uint16
   if (!_enabled) {
     enable();
   }
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_PERSIST_FILTER,  persist);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AILTL, lowerThreshold);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AILTH, lowerThreshold >> 8);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AIHTL, upperThreshold);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AIHTH, upperThreshold >> 8);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_PERSIST_FILTER,
+      _config.AINT_persistance);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AILTL,
+      _config.AINT_threshold_lower);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AILTH,
+      _config.AINT_threshold_lower >> 8);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AIHTL,
+      _config.AINT_threshold_upper);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_AIHTH,
+      _config.AINT_threshold_upper >> 8);
+  if (!was_enabled) {
+    disable();
+  }
+}
+
+/************************************************************************/
+/*!
+    @brief  set up the ALS interrupt thresholds (interrupt generated when light level is outside the lower/upper range for long enough).
+    @param  lowerThreshold Raw light data reading level that is the lower value threshold for interrupt
+    @param  upperThreshold Raw light data reading level that is the higher value threshold for interrupt
+    @param  persist How many counts we must be outside range for interrupt to fire, default is any single value
+*/
+/**************************************************************************/
+void Adafruit_TSL2591::setALSInterruptThresholds(
+    uint16_t lowerThreshold,
+    uint16_t upperThreshold,
+    tsl2591Persist_t persist = TSL2591_PERSIST_ANY
+) {
+  if (!_initialized) {
+    if (!begin()) {
+      return;
+    }
+  }
+
+  _config.AINT_threshold_lower = lowerThreshold;
+  _config.AINT_threshold_upper = upperThreshold;
+  _config.AINT_persistance = persist;
+  _writeALSInterruptThresholds();
+}
+
+/************************************************************************/
+/*!
+    @brief  set up the NP interrupt thresholds (interrupt generated immediately after conversion when light level is outside the lower/upper range).
+*/
+/**************************************************************************/
+void Adafruit_TSL2591::_writeNPInterruptThresholds()
+{
+  if (!_initialized) {
+    if (!begin()) {
+      return;
+    }
+  }
+
+  boolean was_enabled = _enabled;
+  if (!_enabled) {
+    enable();
+  }
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAILTL,
+      _config.NPINTR_threshold_lower);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAILTH,
+      _config.NPINTR_threshold_lower >> 8);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAIHTL,
+      _config.NPINTR_threshold_upper);
+  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAIHTH,
+      _config.NPINTR_threshold_upper >> 8);
+
   if (!was_enabled) {
     disable();
   }
@@ -525,17 +627,9 @@ void Adafruit_TSL2591::setNPInterruptThresholds(uint16_t lowerThreshold, uint16_
     }
   }
 
-  boolean was_enabled = _enabled;
-  if (!_enabled) {
-    enable();
-  }
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAILTL, lowerThreshold);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAILTH, lowerThreshold >> 8);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAIHTL, upperThreshold);
-  write8(TSL2591_COMMAND_BIT | TSL2591_REGISTER_THRESHOLD_NPAIHTH, upperThreshold >> 8);
-  if (!was_enabled) {
-    disable();
-  }
+  _config.NPINTR_threshold_lower = lowerThreshold;
+  _config.NPINTR_threshold_upper = upperThreshold;
+  _writeNPInterruptThresholds();
 }
 
 /************************************************************************/
@@ -687,6 +781,79 @@ void Adafruit_TSL2591::printPersistance(Print &out, tsl2591Persist_t persistance
     }
 }
 
+/************************************************************************/
+/*!
+    @brief  set all configuration values
+    @param  config {@link tsl2591Config_t} pointer to configuration
+*/
+/**************************************************************************/
+void Adafruit_TSL2591::setConfig(tsl2591Config_t *config) {
+    // _config = config;
+    // the set functions are setting the _config values
+    // and then write these to the chip.
+
+    // TODO(s-light): think about options to directly
+    // use the values from the pointed struct
+    // to write to the chip in one go.
+
+    setGain(config->gain);
+    setTiming(config->integrationtime);
+
+    clearInterrupt();
+    setALSInterruptThresholds(
+        config->AINT_threshold_lower,
+        config->AINT_threshold_upper,
+        config->AINT_persistance);
+    setNPInterruptThresholds(
+        config->NPINTR_threshold_lower,
+        config->NPINTR_threshold_upper);
+    clearInterrupt();
+}
+
+/************************************************************************/
+/*!
+    @brief  print all config parameters in human readable form
+    @param  config {@link tsl2591Config_t} pointer to configuration
+*/
+/**************************************************************************/
+void Adafruit_TSL2591::printConfig(Print &out, tsl2591Config_t *config) {
+    // Display the gain and integration time for reference sake
+    out.println("------------------------------------");
+    out.print("Gain:         ");
+    printGain(out, config->gain);
+    out.println();
+    out.print("Timing:       ");
+    out.print(getTimingInMS(config->integrationtime));
+    out.println(" ms");
+    out.print("Max ADC Counts: ");
+    out.print(getMaxADCCounts(config->integrationtime));
+    out.println();
+    out.println("------------------------------------");
+
+    // Display the interrupt threshold window
+    out.print("AINT Threshold Window: ");
+    out.print(config->AINT_threshold_lower, DEC);
+    out.print(" to ");
+    out.print(config->AINT_threshold_upper, DEC);
+    out.print(" with persist ");
+    printPersistance(out, config->AINT_persistance);
+    out.println();
+    out.print("NPINTR Threshold Window: ");
+    out.print(config->NPINTR_threshold_lower, DEC);
+    out.print(" to ");
+    out.print(config->NPINTR_threshold_upper, DEC);
+    out.println("------------------------------------");
+    out.println();
+}
+
+/************************************************************************/
+/*!
+    @brief  print all current config parameters in human readable form
+*/
+/**************************************************************************/
+void Adafruit_TSL2591::printConfig(Print &out) {
+    printConfig(out, &_config);
+}
 
 /************************************************************************/
 /*!

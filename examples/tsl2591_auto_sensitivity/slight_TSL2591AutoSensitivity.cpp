@@ -63,9 +63,11 @@ bool slight_TSL2591AutoSensitivity::begin(Stream &out) {
         if (tsl.begin()) {
             out.println(F("found TSL2591 sensor"));
 
-            configure_sensor(out);
+            sensor_print_details(out);
 
-            tsl_print_details(out);
+            // configure_sensor(out);
+            tsl.printConfig(out);
+            out.println();
 
             tsl.enable();
 
@@ -140,6 +142,7 @@ void slight_TSL2591AutoSensitivity::read_sensor(void) {
 // config
 
 void slight_TSL2591AutoSensitivity::configure_sensor(Print &out) {
+    out.println("configure_sensor...");
     // You can change the gain on the fly,
     // to adapt to brighter/dimmer light situations
     // tsl.setGain(TSL2591_GAIN_LOW);    // 1x gain (bright light)
@@ -158,21 +161,6 @@ void slight_TSL2591AutoSensitivity::configure_sensor(Print &out) {
     tsl.setTiming(TSL2591_INTEGRATIONTIME_500MS);
     // tsl.setTiming(TSL2591_INTEGRATIONTIME_600MS);
     // longest integration time (dim light)
-
-    // Display the gain and integration time for reference sake
-    Serial.println("------------------------------------");
-    Serial.print("Gain:         ");
-    tsl.printGain(Serial);
-    Serial.println();
-    Serial.print("Timing:       ");
-    Serial.print(tsl.getTimingInMS());
-    Serial.println(" ms");
-    Serial.print("Max ADC Counts: ");
-    Serial.print(tsl.getMaxADCCounts());
-    Serial.println();
-    Serial.println("------------------------------------");
-    Serial.println("");
-
 
     // AINT persistance
     // TSL2591_PERSIST_EVERY → Every ALS cycle generates an interrupt
@@ -210,19 +198,7 @@ void slight_TSL2591AutoSensitivity::configure_sensor(Print &out) {
         NPINTR_threshold_lower, NPINTR_threshold_upper);
     tsl.clearInterrupt();
 
-    /* Display the interrupt threshold window */
-    Serial.print("AINT Threshold Window: ");
-    Serial.print(AINT_threshold_lower, DEC);
-    Serial.print(" to ");
-    Serial.print(AINT_threshold_upper, DEC);
-    Serial.print(" with persist ");
-    tsl.printPersistance(Serial, AINT_persistance);
-    Serial.println();
-    Serial.print("NPINTR Threshold Window: ");
-    Serial.print(NPINTR_threshold_lower, DEC);
-    Serial.print(" to ");
-    Serial.print(NPINTR_threshold_upper, DEC);
-    Serial.println();
+    // print_config(out);
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -232,7 +208,7 @@ void slight_TSL2591AutoSensitivity::configure_sensor(Print &out) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // helper
 
-void slight_TSL2591AutoSensitivity::tsl_print_details(Print &out) {
+void slight_TSL2591AutoSensitivity::sensor_print_details(Print &out) {
     sensor_t sensor;
     tsl.getSensor(&sensor);
     out.println(F("------------------------------------"));
@@ -252,17 +228,6 @@ void slight_TSL2591AutoSensitivity::tsl_print_details(Print &out) {
     out.print(sensor.resolution, 4);
     out.println(F(" lux"));
     out.println(F("------------------------------------"));
-    out.print(F("Gain:         "));
-    tsl.printGain(out);
-    out.println();
-    out.print(F("Timing:       "));
-    out.print(tsl.getTimingInMS());
-    out.println(" ms");
-    out.print("Max ADC Counts: ");
-    out.print(tsl.getMaxADCCounts());
-    out.println();
-    out.println(F("------------------------------------"));
-    out.println(F(""));
 }
 
 void slight_TSL2591AutoSensitivity::print_status(Print &out) {
@@ -327,6 +292,7 @@ void slight_TSL2591AutoSensitivity::print_status(Print &out) {
         "IR: 65535  Full: 65535  Visible: 65535  Lux: 88000.0000     \0";
 
     #if defined(ARDUINO_ARCH_AVR)
+        // https://stackoverflow.com/a/27652012/574981
         int chars_written = snprintf(
             buffer, sizeof(buffer),
             "IR: %5u  Full: %5u  Visible: %5u  Lux: ",
