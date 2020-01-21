@@ -180,13 +180,39 @@ void slight_TSL2591AutoSensitivity::update_filter(void) {
         temp_sum += lux_filter[i];
     }
     double lux_filtered_new = temp_sum / lux_filter_count;
-    if (lux_filtered != lux_filtered_new) {
+    handle_lux_new(lux_filtered_new);
+}
 
-        // if (/* condition */) {
-        //     /* code */
-        // }
+void slight_TSL2591AutoSensitivity::handle_lux_new(double value_new) {
+    // find value range
+    double range_factor = 0.0;
+    if (value_new > 10000.0) {
+        range_factor = 1000;
+    } else if (value_new > 1000.0) {
+        range_factor = 100;
+    } else if (value_new > 100.0) {
+        range_factor = 10;
+    } else if (value_new > 1.0) {
+        range_factor = 1;
+    } else if (value_new > 0.1000) {
+        range_factor = 0.1;
+    } else if (value_new > 0.0100) {
+        range_factor = 0.01;
+    } else if (value_new > 0.0010) {
+        range_factor = 0.001;
+    } else {
+        range_factor = 0.0001;
+    }
 
-        lux_filtered = lux_filtered_new;
+    // Serial.print("range_factor ");
+    // Serial.println(range_factor, 4);
+
+    double dif = std::fmax(lux_filtered, value_new) -
+        std::fmin(lux_filtered, value_new);
+    // Serial.print("dif ");
+    // Serial.println(dif, 4);
+    if (dif > range_factor) {
+        lux_filtered = value_new;
         lux_filtered_changed_flag = true;
         // TODO(s-light): add precision filtering
         // TODO(s-light): add event generation

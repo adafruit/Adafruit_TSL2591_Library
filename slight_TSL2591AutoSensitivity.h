@@ -65,6 +65,7 @@ public:
     void read_sensor(void);
     void handle_out_of_range(void);
     void update_filter(void);
+    void handle_lux_new(double value_new);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // sensitivity config
