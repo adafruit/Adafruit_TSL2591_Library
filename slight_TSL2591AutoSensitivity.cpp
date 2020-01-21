@@ -214,12 +214,39 @@ uint8_t slight_TSL2591AutoSensitivity::get_sensitivity_config_id() {
     return sens_conf_current_id;
 }
 
-uint8_t slight_TSL2591AutoSensitivity::get_sensitivity_config_changed() {
+uint8_t slight_TSL2591AutoSensitivity::sensitivity_config_changed() {
     return sens_conf_changed;
 }
 
-void slight_TSL2591AutoSensitivity::reset_sensitivity_config_changed() {
+void slight_TSL2591AutoSensitivity::sensitivity_config_changed_clear() {
     sens_conf_changed = 0;
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// value getter
+
+uint16_t slight_TSL2591AutoSensitivity::get_ir_raw(void) {
+    return ir_raw;
+}
+
+uint16_t slight_TSL2591AutoSensitivity::get_full_raw(void) {
+    return full_raw;
+}
+
+double slight_TSL2591AutoSensitivity::get_lux_raw(void) {
+    return lux_raw;
+}
+
+double slight_TSL2591AutoSensitivity::get_lux_filtered(void) {
+    return lux_filtered;
+}
+
+bool slight_TSL2591AutoSensitivity::lux_filtered_changed(void) {
+    return lux_filtered_changed;
+}
+
+void slight_TSL2591AutoSensitivity::lux_filtered_changed_clear(void) {
+    lux_filtered_changed = false;
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -340,21 +367,6 @@ void slight_TSL2591AutoSensitivity::print_status(Print &out) {
     print_float(out, tsl.calculateLux(full, ir), 5, 4);
 }
 
-uint16_t slight_TSL2591AutoSensitivity::get_ir_raw(void) {
-    return ir_raw;
-}
-
-uint16_t slight_TSL2591AutoSensitivity::get_full_raw(void) {
-    return full_raw;
-}
-
-double slight_TSL2591AutoSensitivity::get_lux_raw(void) {
-    return lux_raw;
-}
-
-double slight_TSL2591AutoSensitivity::get_lux_filtered(void) {
-    return lux_filtered;
-}
 
 /// @endcond
 

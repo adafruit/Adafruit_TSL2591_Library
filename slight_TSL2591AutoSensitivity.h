@@ -74,8 +74,8 @@ public:
 
     uint8_t get_sensitivity_config_id();
 
-    uint8_t get_sensitivity_config_changed();
-    void reset_sensitivity_config_changed();
+    uint8_t sensitivity_config_changed();
+    void sensitivity_config_changed_clear();
 
     // struct sensitivity_config_t {
     //     tsl2591Gain_t gain;
@@ -255,8 +255,8 @@ public:
     uint16_t get_full_raw();
     double get_lux_raw();
     double get_lux_filtered();
-    bool filtered_lux_changed();
-    void filtered_lux_changed_clear();
+    bool lux_filtered_changed();
+    void lux_filtered_changed_clear();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // helper
@@ -270,17 +270,18 @@ public:
 private:
     bool ready = false;
 
-    uint16_t ir_raw = 0;
-    uint16_t full_raw = 0;
-    double lux_raw = 0.0;
-
     uint8_t sens_conf_current_id = 9;
     Adafruit_TSL2591::tsl2591Config_t *sens_conf_current;
     int8_t sens_conf_changed = 0;
     uint32_t sens_conf_changed_timestamp = 0;
     uint32_t sens_conf_changed_extra_wait_duration = 0;
 
+    uint16_t ir_raw = 0;
+    uint16_t full_raw = 0;
+    double lux_raw = 0.0;
+
     double lux_filtered = 0.0;
+    bool lux_filtered_changed = false;
     static const uint8_t lux_filter_count = 10;
     double lux_filter[lux_filter_count];
     uint8_t lux_filter_index = 0;
