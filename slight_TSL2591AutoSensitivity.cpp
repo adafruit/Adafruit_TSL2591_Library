@@ -181,7 +181,13 @@ void slight_TSL2591AutoSensitivity::update_filter(void) {
     }
     double lux_filtered_new = temp_sum / lux_filter_count;
     if (lux_filtered != lux_filtered_new) {
+
+        // if (/* condition */) {
+        //     /* code */
+        // }
+
         lux_filtered = lux_filtered_new;
+        lux_filtered_changed_flag = true;
         // TODO(s-light): add precision filtering
         // TODO(s-light): add event generation
     }
@@ -242,11 +248,11 @@ double slight_TSL2591AutoSensitivity::get_lux_filtered(void) {
 }
 
 bool slight_TSL2591AutoSensitivity::lux_filtered_changed(void) {
-    return lux_filtered_changed;
+    return lux_filtered_changed_flag;
 }
 
 void slight_TSL2591AutoSensitivity::lux_filtered_changed_clear(void) {
-    lux_filtered_changed = false;
+    lux_filtered_changed_flag = false;
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

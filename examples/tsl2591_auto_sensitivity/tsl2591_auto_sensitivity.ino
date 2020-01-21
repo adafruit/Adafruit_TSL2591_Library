@@ -73,9 +73,19 @@ void setup_als(Print &out) {
 }
 
 void handle_sens_conf_change(Print &out) {
-    if (als.get_sensitivity_config_changed()) {
+    if (als.sensitivity_config_changed()) {
         debugout_sens_conf_change(out);
-        als.reset_sensitivity_config_changed();
+        als.sensitivity_config_changed_clear();
+    }
+}
+
+void handle_lux_change(Print &out) {
+    if (als.lux_filtered_changed()) {
+        out.print("update: ");
+        out.print(als.get_lux_filtered(), 4);
+        out.print("LUX");
+        out.println();
+        als.lux_filtered_changed_clear();
     }
 }
 
@@ -124,7 +134,7 @@ void debugout_sens_conf_change(Print &out) {
     out.println();
 
     out.print("sens_conf_changed:");
-    out.print(als.get_sensitivity_config_changed());
+    out.print(als.sensitivity_config_changed());
     out.println();
 
     out.println();
@@ -165,4 +175,5 @@ void loop(void) {
     als.update();
     handle_sens_conf_change(Serial);
     debugout(Serial);
+    handle_lux_change(Serial);
 }

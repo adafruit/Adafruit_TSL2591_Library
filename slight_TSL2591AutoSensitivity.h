@@ -281,7 +281,7 @@ private:
     double lux_raw = 0.0;
 
     double lux_filtered = 0.0;
-    bool lux_filtered_changed = false;
+    bool lux_filtered_changed_flag = false;
     static const uint8_t lux_filter_count = 10;
     double lux_filter[lux_filter_count];
     uint8_t lux_filter_index = 0;
