@@ -41,6 +41,7 @@ SOFTWARE.
 // include own headerfile
 // NOLINTNEXTLINE(build/include)
 #include "./slight_TSL2591AutoSensitivity.h"
+#include <algorithm>
 
 /// @cond DEV
 
@@ -186,14 +187,20 @@ void slight_TSL2591AutoSensitivity::update_filter(void) {
 void slight_TSL2591AutoSensitivity::handle_lux_new(double value_new) {
     // find value range
     double range_factor = 0.0;
-    if (value_new > 10000.0) {
+    if (value_new > 20000.0) {
         range_factor = 1000;
-    } else if (value_new > 1000.0) {
+    } else if (value_new > 10000.0) {
+        range_factor = 500;
+    } else if (value_new > 2000.0) {
         range_factor = 100;
+    } else if (value_new > 1000.0) {
+        range_factor = 50;
     } else if (value_new > 100.0) {
         range_factor = 10;
-    } else if (value_new > 1.0) {
+    } else if (value_new > 10.0) {
         range_factor = 1;
+    } else if (value_new > 1.0) {
+        range_factor = 0.5;
     } else if (value_new > 0.1000) {
         range_factor = 0.1;
     } else if (value_new > 0.0100) {
@@ -207,8 +214,8 @@ void slight_TSL2591AutoSensitivity::handle_lux_new(double value_new) {
     // Serial.print("range_factor ");
     // Serial.println(range_factor, 4);
 
-    double dif = std::fmax(lux_filtered, value_new) -
-        std::fmin(lux_filtered, value_new);
+    double dif = std::max(lux_filtered, value_new) -
+        std::min(lux_filtered, value_new);
     // Serial.print("dif ");
     // Serial.println(dif, 4);
     if (dif > range_factor) {

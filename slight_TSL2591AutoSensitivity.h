@@ -111,7 +111,7 @@ public:
             0,
             TSL2591_PERSIST_EVERY,
             100,
-            TSL2591_MAX_ADC_COUNT_100MS-1000
+            TSL2591_MAX_ADC_COUNT_100MS-2000
         },
         // 2 cloudy
         {
@@ -121,7 +121,7 @@ public:
             0,
             TSL2591_PERSIST_EVERY,
             100,
-            TSL2591_MAX_ADC_COUNT_200MS_600MS-1000
+            TSL2591_MAX_ADC_COUNT_200MS_600MS-2000
         },
         // ------------------------------------------
         // GAIN HIGH
