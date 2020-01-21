@@ -1,17 +1,17 @@
 /**************************************************************************/
-/*! 
+/*!
     @file     Adafruit_TSL2591.h
     @author   KT0WN (adafruit.com)
 
     This is a library for the Adafruit TSL2591 breakout board
-    This library works with the Adafruit TSL2591 breakout 
+    This library works with the Adafruit TSL2591 breakout
     ----> https://www.adafruit.com/products/1980
-	
-    Check out the links above for our tutorials and wiring diagrams 
+
+    Check out the links above for our tutorials and wiring diagrams
     These chips use I2C to communicate
- 
-    Adafruit invests time and resources providing this open source code, 
-    please support Adafruit and open-source hardware by purchasing 
+
+    Adafruit invests time and resources providing this open source code,
+    please support Adafruit and open-source hardware by purchasing
     products from Adafruit!
 */
 /**************************************************************************/
@@ -50,8 +50,12 @@
 #define TSL2591_ENABLE_AIEN       (0x10)    ///< ALS Interrupt Enable. When asserted permits ALS interrupts to be generated, subject to the persist filter.
 #define TSL2591_ENABLE_NPIEN      (0x80)    ///< No Persist Interrupt Enable. When asserted NP Threshold conditions will generate an interrupt, bypassing the persist filter
 
+#define TSL2591_STATUS_AVALID     (0b00000001) ///< Flag AVALID in STATUS register
+#define TSL2591_STATUS_AINT       (0b00010000) ///< Flag AINT in STATUS register
+#define TSL2591_STATUS_NPINTR     (0b00100000) ///< Flag NPINTR in STATUS register
+
 #define TSL2591_LUX_DF            (408.0F) ///< Lux cooefficient
-#define TSL2591_LUX_COEFB         (1.64F)  ///< CH0 coefficient 
+#define TSL2591_LUX_COEFB         (1.64F)  ///< CH0 coefficient
 #define TSL2591_LUX_COEFC         (0.59F)  ///< CH1 coefficient A
 #define TSL2591_LUX_COEFD         (0.86F)  ///< CH2 coefficient B
 
@@ -90,6 +94,11 @@ typedef enum
 }
 tsl2591IntegrationTime_t;
 
+// constants for Max ADC Count at integrationtime
+// datasheet: Figure 8: ALS Characteristics - Max ADC Count
+#define TSL2591_MAX_ADC_COUNT_100MS (36863)  ///< Max ADC Count at integrationtime 100ms
+#define TSL2591_MAX_ADC_COUNT_200MS_600MS (65535)  ///< Max ADC Count at integrationtime 200ms - 600ms
+
 /// Enumeration for the persistance filter (for interrupts)
 typedef enum
 {
@@ -125,7 +134,7 @@ tsl2591Gain_t;
 
 
 /**************************************************************************/
-/*! 
+/*!
     @brief  Class that stores state and functions for interacting with TSL2591 Light Sensor
 */
 /**************************************************************************/
@@ -133,9 +142,9 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
 {
  public:
   Adafruit_TSL2591(int32_t sensorID = -1);
-  
+
   boolean   begin   ( TwoWire *theWire );
-    boolean   begin   ( );
+  boolean   begin   ( );
   void      enable  ( void );
   void      disable ( void );
 
@@ -146,30 +155,109 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
   uint32_t  getFullLuminosity ( );
 
   tsl2591IntegrationTime_t getTiming();
+  static uint16_t          getTimingInMS(tsl2591IntegrationTime_t integration);
+  uint16_t                 getTimingInMS();
+
+  static uint16_t          getMaxADCCounts(tsl2591IntegrationTime_t integration);
+  uint16_t                 getMaxADCCounts();
+
   tsl2591Gain_t            getGain();
+  static uint16_t          gainAsInt(tsl2591Gain_t gain);
+  uint16_t                 getGainAsInt();
+  static void              printGain(Print &out, tsl2591Gain_t gain);
+  void                     printGain(Print &out);
 
   // Interrupt
   void    clearInterrupt(void);
-  void    registerInterrupt(uint16_t lowerThreshold, uint16_t upperThreshold, tsl2591Persist_t persist);
+  void    registerInterrupt(uint16_t lowerThreshold, uint16_t upperThreshold, tsl2591Persist_t persist) __attribute__ ((deprecated("please use setALSInterruptThresholds instead.")));
+  void    setALSInterruptThresholds(uint16_t lowerThreshold, uint16_t upperThreshold, tsl2591Persist_t persist);
+  void    setNPInterruptThresholds(uint16_t lowerThreshold, uint16_t upperThreshold);
   uint8_t getStatus();
-  
-  /* Unified Sensor API Functions */  
+
+  static void printPersistance(Print &out, tsl2591Persist_t persistance);
+  static uint8_t convertPersistanceToInt(tsl2591Persist_t persistance);
+
+  /* Unified Sensor API Functions */
   bool getEvent  ( sensors_event_t* );
   void getSensor ( sensor_t* );
 
- private:
- 
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // sensitivity config
+
+  // how to document struct outside of itself
+  // https://stackoverflow.com/a/7210437/574981
+  /*!
+    @struct tsl2591Config_t
+    @brief  struct to store all the sensor configuration parameters
+    @var tsl2591Config_t::gain
+    sensor gain {@link tsl2591Gain_t}
+    @var tsl2591Config_t::integrationtime
+    sensor integration time {@link tsl2591IntegrationTime_t}
+    @var tsl2591Config_t::AINT_threshold_lower
+    sensor AINT threshold lower
+    @var tsl2591Config_t::AINT_threshold_upper
+    sensor AINT threshold upper
+    @var tsl2591Config_t::AINT_persistance
+    sensor AINT persistance  {@link tsl2591Persist_t}
+    @var tsl2591Config_t::NPINTR_threshold_lower
+    sensor NPINTR threshold lower
+    @var tsl2591Config_t::NPINTR_threshold_upper
+    sensor NPINTR threshold upper
+  */
+  struct tsl2591Config_t {
+      tsl2591Gain_t gain;
+      tsl2591IntegrationTime_t integrationtime;
+      uint16_t AINT_threshold_lower;
+      uint16_t AINT_threshold_upper;
+      tsl2591Persist_t AINT_persistance;
+      uint16_t NPINTR_threshold_lower;
+      uint16_t NPINTR_threshold_upper;
+  };
+
+  void setConfig(tsl2591Config_t *config);
+  void printConfig(Print &out, tsl2591Config_t *config);
+  void printConfig(Print &out);
+
+ protected:
+
+  /*!
+    @brief  internal store for i2c pointer
+  */
    TwoWire *_i2c;
-   
+
   void      write8  ( uint8_t r);
   void      write8  ( uint8_t r, uint8_t v );
   uint16_t  read16  ( uint8_t reg );
   uint8_t   read8   ( uint8_t reg );
 
-  tsl2591IntegrationTime_t _integration;
-  tsl2591Gain_t _gain;
+  void _copyConfigParamsToLocal(tsl2591Config_t *config);
+  void _useLocalConfig();
+  void _writeConfig();
+  void _writeIntegrationtimeGain();
+  void _writeALSInterruptThresholds();
+  void _writeNPInterruptThresholds();
+
+  /*!
+    @brief  internal store for sensor configuration
+  */
+  tsl2591Config_t _config_local;
+  /*!
+  @brief  internal pointer to current sensor configuration
+  */
+  tsl2591Config_t *_config_current;
+
+  /*!
+    @brief  internal store for sensorID
+  */
   int32_t _sensorID;
 
+  /*!
+    @brief  internal flag: is sensor active?
+  */
+  boolean _enabled;
+  /*!
+    @brief  internal flag: is library initialised?
+  */
   boolean _initialized;
 };
 #endif
