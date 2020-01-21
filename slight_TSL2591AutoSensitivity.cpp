@@ -209,8 +209,10 @@ void slight_TSL2591AutoSensitivity::handle_lux_new(double value_new) {
         range_factor = 0.01;
     } else if (value_new > 0.0010) {
         range_factor = 0.001;
-    } else {
+    } else if (value_new > 0.0001) {
         range_factor = 0.0001;
+    } else {
+        range_factor = 0.00001;
     }
 
     // Serial.print("range_factor ");
