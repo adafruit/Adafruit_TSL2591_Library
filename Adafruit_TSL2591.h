@@ -188,13 +188,20 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
   // https://stackoverflow.com/a/7210437/574981
   /*!
     @brief  struct to store all the sensor configuration parameters
-    @var tsl2591Config_t::gain sensor gain {@link tsl2591Gain_t}
-    @var tsl2591Config_t::integrationtime sensor integration time {@link tsl2591IntegrationTime_t}
-    @var tsl2591Config_t::AINT_threshold_lower sensor AINT threshold lower
-    @var tsl2591Config_t::AINT_threshold_upper sensor AINT threshold upper
-    @var tsl2591Config_t::AINT_persistance sensor AINT persistance  {@link tsl2591Persist_t}
-    @var tsl2591Config_t::NPINTR_threshold_lower sensor NPINTR threshold lower
-    @var tsl2591Config_t::NPINTR_threshold_upper sensor NPINTR threshold upper
+    @var tsl2591Config_t::gain
+    sensor gain {@link tsl2591Gain_t}
+    @var tsl2591Config_t::integrationtime
+    sensor integration time {@link tsl2591IntegrationTime_t}
+    @var tsl2591Config_t::AINT_threshold_lower
+    sensor AINT threshold lower
+    @var tsl2591Config_t::AINT_threshold_upper
+    sensor AINT threshold upper
+    @var tsl2591Config_t::AINT_persistance
+    sensor AINT persistance  {@link tsl2591Persist_t}
+    @var tsl2591Config_t::NPINTR_threshold_lower
+    sensor NPINTR threshold lower
+    @var tsl2591Config_t::NPINTR_threshold_upper
+    sensor NPINTR threshold upper
   */
   struct tsl2591Config_t {
       tsl2591Gain_t gain;
