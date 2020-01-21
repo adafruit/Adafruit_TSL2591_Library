@@ -227,7 +227,9 @@ void slight_TSL2591AutoSensitivity::reset_sensitivity_config_changed() {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // helper
 
-size_t print_float(Print &out, float value, size_t leading, size_t precision) {
+size_t slight_TSL2591AutoSensitivity::print_float(
+    Print &out, float value, size_t leading, size_t precision
+) {
     // const size_t buffer_length = leading + 1 + precision;
     char buffer[20];
     size_t chars_printed = 0;
