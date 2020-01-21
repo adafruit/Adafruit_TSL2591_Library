@@ -187,6 +187,7 @@ class Adafruit_TSL2591 : public Adafruit_Sensor
   // how to document struct outside of itself
   // https://stackoverflow.com/a/7210437/574981
   /*!
+    @struct tsl2591Config_t
     @brief  struct to store all the sensor configuration parameters
     @var tsl2591Config_t::gain
     sensor gain {@link tsl2591Gain_t}
