@@ -96,15 +96,15 @@ void debugout(Print &out) {
         print_runtime(out);
 
         out.print("  ");
-        out.print(als.value_lux, 4);
+        out.print(als.get_lux_filtered(), 4);
         out.print(" lux");
 
         out.print("    id:");
         out.print(als.get_sensitivity_config_id());
         out.print("    full:");
-        out.print(als.get_raw_full());
-        out.print("    raw_lux:");
-        out.print(als.get_raw_lux(), 4);
+        out.print(als.get_full_raw());
+        out.print("    lux_raw:");
+        out.print(als.get_lux_raw(), 4);
 
         // als.print_status(out);
         out.println();

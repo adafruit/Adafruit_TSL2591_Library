@@ -250,23 +250,29 @@ public:
 
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // value getter
+    uint16_t get_ir_raw();
+    uint16_t get_full_raw();
+    double get_lux_raw();
+    double get_lux_filtered();
+    bool filtered_lux_changed();
+    void filtered_lux_changed_clear();
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // helper
     static size_t print_float(
         Print &out, float value, size_t leading, size_t precision);
     void sensor_print_details(Print &out);
     void print_status(Print &out);
     // uint32_t last_action = 0;
-    uint16_t get_raw_ir();
-    uint16_t get_raw_full();
-    double get_raw_lux();
 
-    double value_lux = 0.0;
+
 private:
     bool ready = false;
 
-    uint16_t raw_ir = 0;
-    uint16_t raw_full = 0;
-    double raw_lux = 0.0;
+    uint16_t ir_raw = 0;
+    uint16_t full_raw = 0;
+    double lux_raw = 0.0;
 
     uint8_t sens_conf_current_id = 9;
     Adafruit_TSL2591::tsl2591Config_t *sens_conf_current;
@@ -274,9 +280,10 @@ private:
     uint32_t sens_conf_changed_timestamp = 0;
     uint32_t sens_conf_changed_extra_wait_duration = 0;
 
-    static const uint8_t value_filter_count = 10;
-    double value_filter[value_filter_count];
-    uint8_t value_filter_index = 0;
+    double lux_filtered = 0.0;
+    static const uint8_t lux_filter_count = 10;
+    double lux_filter[lux_filter_count];
+    uint8_t lux_filter_index = 0;
 
 };  // class slight_TSL2591AutoSensitivity
 /// @endcond

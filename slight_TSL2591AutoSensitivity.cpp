@@ -105,9 +105,6 @@ void slight_TSL2591AutoSensitivity::update() {
                 }
             } else {
                 update_filter();
-                // if (value_lux > 300) {
-                //     /* code */
-                // }
             }
         }
     }
@@ -121,9 +118,9 @@ void slight_TSL2591AutoSensitivity::read_sensor(void) {
     // Read 32 bits with top 16 bits IR, bottom 16 bits full spectrum
     // That way you can do whatever math and comparisons you want!
     uint32_t lum = tsl.getFullLuminosity();
-    raw_ir = lum >> 16;
-    raw_full = lum & 0xFFFF;
-    raw_lux = tsl.calculateLux(raw_full, raw_ir);
+    ir_raw = lum >> 16;
+    full_raw = lum & 0xFFFF;
+    lux_raw = tsl.calculateLux(full_raw, ir_raw);
 }
 
 void slight_TSL2591AutoSensitivity::handle_out_of_range(void) {
@@ -131,14 +128,14 @@ void slight_TSL2591AutoSensitivity::handle_out_of_range(void) {
     uint16_t config_lower =  sens_conf_current->NPINTR_threshold_lower;
     uint16_t config_upper =  sens_conf_current->NPINTR_threshold_upper;
     int8_t changed = 0;
-    if (raw_full < config_lower) {
+    if (full_raw < config_lower) {
         // switch to higher id = more sensitiv
         if (config_id_new <  sens_conf_count-1) {
             config_id_new += 1;
             changed = 1;
         }
     } else {
-        if (raw_full > config_upper) {
+        if (full_raw > config_upper) {
             // switch to lower id = less sensitiv
             if (config_id_new > 0) {
                 config_id_new -= 1;
@@ -173,18 +170,18 @@ void slight_TSL2591AutoSensitivity::handle_out_of_range(void) {
 
 void slight_TSL2591AutoSensitivity::update_filter(void) {
     // simple filter
-    value_filter[value_filter_index] = raw_lux;
-    value_filter_index += 1;
-    if (value_filter_index > value_filter_count) {
-        value_filter_index = 0;
+    lux_filter[lux_filter_index] = lux_raw;
+    lux_filter_index += 1;
+    if (lux_filter_index > lux_filter_count) {
+        lux_filter_index = 0;
     }
     double temp_sum = 0;
-    for (size_t i = 0; i < value_filter_count; i++) {
-        temp_sum += value_filter[i];
+    for (size_t i = 0; i < lux_filter_count; i++) {
+        temp_sum += lux_filter[i];
     }
-    double value_lux_new = temp_sum / value_filter_count;
-    if (value_lux != value_lux_new) {
-        value_lux = value_lux_new;
+    double lux_filtered_new = temp_sum / lux_filter_count;
+    if (lux_filtered != lux_filtered_new) {
+        lux_filtered = lux_filtered_new;
         // TODO(s-light): add precision filtering
         // TODO(s-light): add event generation
     }
@@ -343,16 +340,20 @@ void slight_TSL2591AutoSensitivity::print_status(Print &out) {
     print_float(out, tsl.calculateLux(full, ir), 5, 4);
 }
 
-uint16_t slight_TSL2591AutoSensitivity::get_raw_ir(void) {
-    return raw_ir;
+uint16_t slight_TSL2591AutoSensitivity::get_ir_raw(void) {
+    return ir_raw;
 }
 
-uint16_t slight_TSL2591AutoSensitivity::get_raw_full(void) {
-    return raw_full;
+uint16_t slight_TSL2591AutoSensitivity::get_full_raw(void) {
+    return full_raw;
 }
 
-double slight_TSL2591AutoSensitivity::get_raw_lux(void) {
-    return raw_lux;
+double slight_TSL2591AutoSensitivity::get_lux_raw(void) {
+    return lux_raw;
+}
+
+double slight_TSL2591AutoSensitivity::get_lux_filtered(void) {
+    return lux_filtered;
 }
 
 /// @endcond
