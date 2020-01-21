@@ -151,14 +151,16 @@ void slight_TSL2591AutoSensitivity::handle_out_of_range(void) {
         // set flag
         sens_conf_changed += changed;
         sens_conf_changed_timestamp = millis();
-        sens_conf_changed_extra_wait_duration =
-            tsl.getTimingInMS(sens_conf_current->integrationtime) * 5;
-        // if (changed > 0) {
-        //     sens_conf_changed_extra_wait_duration =
-        //         tsl.getTimingInMS(sens_conf_current->integrationtime) * 5;
-        // } else {
-        //     sens_conf_changed_extra_wait_duration = 0;
-        // }
+        // sens_conf_changed_extra_wait_duration =
+        //     tsl.getTimingInMS(sens_conf_current->integrationtime) * 5;
+        if (changed > 0) {
+            sens_conf_changed_extra_wait_duration =
+                tsl.getTimingInMS(sens_conf_current->integrationtime) * 3;
+        } else {
+            // sens_conf_changed_extra_wait_duration = 0;
+            sens_conf_changed_extra_wait_duration =
+                tsl.getTimingInMS(sens_conf_current->integrationtime) * 1;
+        }
         // Serial.println("***");
         // Serial.print("  sens_conf_changed:");
         // Serial.print(sens_conf_changed);
