@@ -42,9 +42,10 @@ SOFTWARE.
 // NOLINTNEXTLINE(build/include)
 #include "./slight_TSL2591AutoSensitivity.h"
 
-#ifndef ARDUINO
-    #include <algorithm>
-#endif
+// #ifndef ARDUINO
+//     #include <algorithm>
+// #endif
+// we dont need this as min and max are defined as macros by arduino :-(
 
 /// @cond DEV
 
@@ -221,8 +222,9 @@ void slight_TSL2591AutoSensitivity::handle_lux_new(double value_new) {
     // Serial.print("range_factor ");
     // Serial.println(range_factor, 4);
 
-    double dif = std::max(lux_filtered, value_new) -
-        std::min(lux_filtered, value_new);
+    // double dif = std::max(lux_filtered, value_new) -
+    //     std::min(lux_filtered, value_new);
+    double dif = max(lux_filtered, value_new) - min(lux_filtered, value_new);
     // Serial.print("dif ");
     // Serial.println(dif, 4);
     if (dif > range_factor) {
