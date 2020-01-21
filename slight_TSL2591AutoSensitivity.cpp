@@ -41,7 +41,10 @@ SOFTWARE.
 // include own headerfile
 // NOLINTNEXTLINE(build/include)
 #include "./slight_TSL2591AutoSensitivity.h"
-#include <algorithm>
+
+#ifndef ARDUINO
+    #include <algorithm>
+#endif
 
 /// @cond DEV
 
