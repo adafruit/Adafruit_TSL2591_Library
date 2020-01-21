@@ -42,6 +42,7 @@ SOFTWARE.
 #include <Adafruit_Sensor.h>
 #include "Adafruit_TSL2591.h"
 
+/// @cond DEV
 class slight_TSL2591AutoSensitivity {
 public:
 
@@ -278,5 +279,6 @@ private:
     uint8_t value_filter_index = 0;
 
 };  // class slight_TSL2591AutoSensitivity
+/// @endcond
 
 #endif  // slight_tsl2591_autosensitivity_H_

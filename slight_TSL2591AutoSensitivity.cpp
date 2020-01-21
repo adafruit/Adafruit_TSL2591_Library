@@ -42,6 +42,7 @@ SOFTWARE.
 // NOLINTNEXTLINE(build/include)
 #include "./slight_TSL2591AutoSensitivity.h"
 
+/// @cond DEV
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // main api
@@ -353,6 +354,8 @@ uint16_t slight_TSL2591AutoSensitivity::get_raw_full(void) {
 double slight_TSL2591AutoSensitivity::get_raw_lux(void) {
     return raw_lux;
 }
+
+/// @endcond
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // THE END
