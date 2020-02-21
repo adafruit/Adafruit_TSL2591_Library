@@ -19,11 +19,7 @@
 #ifndef _TSL2591_H_
 #define _TSL2591_H_
 
-#if ARDUINO >= 100
- #include <Arduino.h>
-#else
- #include <WProgram.h>
-#endif
+#include <Arduino.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 
