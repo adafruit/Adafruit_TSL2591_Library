@@ -53,13 +53,15 @@
     @brief  Instantiates a new Adafruit TSL2591 class
     @param  sensorID An optional ID # so you can track this sensor, it will tag
    sensorEvents you create.
+    @param  addr The I2C adress of the sensor (Default 0x29)
 */
 /**************************************************************************/
-Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID) {
+Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID, uint8_t addr) {
   _initialized = false;
   _integration = TSL2591_INTEGRATIONTIME_100MS;
   _gain = TSL2591_GAIN_MED;
   _sensorID = sensorID;
+  _addr = addr;
 
   // we cant do wire initialization till later, because we havent loaded Wire
   // yet
@@ -480,11 +482,11 @@ void Adafruit_TSL2591::getSensor(sensor_t *sensor) {
 uint8_t Adafruit_TSL2591::read8(uint8_t reg) {
   uint8_t x;
 
-  _i2c->beginTransmission(TSL2591_ADDR);
+  _i2c->beginTransmission(_addr);
   _i2c->write(reg);
   _i2c->endTransmission();
 
-  _i2c->requestFrom(TSL2591_ADDR, 1);
+  _i2c->requestFrom(_addr, 1);
   x = _i2c->read();
 
   return x;
@@ -494,11 +496,11 @@ uint16_t Adafruit_TSL2591::read16(uint8_t reg) {
   uint16_t x;
   uint16_t t;
 
-  _i2c->beginTransmission(TSL2591_ADDR);
+  _i2c->beginTransmission(_addr);
   _i2c->write(reg);
   _i2c->endTransmission();
 
-  _i2c->requestFrom(TSL2591_ADDR, 2);
+  _i2c->requestFrom(_addr, 2);
   t = _i2c->read();
   x = _i2c->read();
 
@@ -508,14 +510,14 @@ uint16_t Adafruit_TSL2591::read16(uint8_t reg) {
 }
 
 void Adafruit_TSL2591::write8(uint8_t reg, uint8_t value) {
-  _i2c->beginTransmission(TSL2591_ADDR);
+  _i2c->beginTransmission(_addr);
   _i2c->write(reg);
   _i2c->write(value);
   _i2c->endTransmission();
 }
 
 void Adafruit_TSL2591::write8(uint8_t reg) {
-  _i2c->beginTransmission(TSL2591_ADDR);
+  _i2c->beginTransmission(_addr);
   _i2c->write(reg);
   _i2c->endTransmission();
 }

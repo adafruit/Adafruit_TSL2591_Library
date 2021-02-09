@@ -130,7 +130,7 @@ typedef enum {
 /**************************************************************************/
 class Adafruit_TSL2591 : public Adafruit_Sensor {
 public:
-  Adafruit_TSL2591(int32_t sensorID = -1);
+  Adafruit_TSL2591(int32_t sensorID = -1, uint8_t addr = TSL2591_ADDR);
 
   boolean begin(TwoWire *theWire);
   boolean begin();
@@ -167,6 +167,7 @@ private:
   tsl2591IntegrationTime_t _integration;
   tsl2591Gain_t _gain;
   int32_t _sensorID;
+  uint8_t addr;
 
   boolean _initialized;
 };
