@@ -53,15 +53,13 @@
     @brief  Instantiates a new Adafruit TSL2591 class
     @param  sensorID An optional ID # so you can track this sensor, it will tag
    sensorEvents you create.
-    @param  addr The I2C adress of the sensor (Default 0x29)
 */
 /**************************************************************************/
-Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID, uint8_t addr) {
+Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID) {
   _initialized = false;
   _integration = TSL2591_INTEGRATIONTIME_100MS;
   _gain = TSL2591_GAIN_MED;
   _sensorID = sensorID;
-  _addr = addr;
 
   // we cant do wire initialization till later, because we havent loaded Wire
   // yet
@@ -71,12 +69,14 @@ Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID, uint8_t addr) {
 /*!
     @brief  Setups the I2C interface and hardware, identifies if chip is found
     @param theWire a reference to TwoWire instance
+    @param  addr The I2C adress of the sensor (Default 0x29)
     @returns True if a TSL2591 is found, false on any failure
 */
 /**************************************************************************/
-boolean Adafruit_TSL2591::begin(TwoWire *theWire) {
+boolean Adafruit_TSL2591::begin(TwoWire *theWire, uint8_t addr) {
   _i2c = theWire;
   _i2c->begin();
+  _addr = addr;
 
   /*
   for (uint8_t i=0; i<0x20; i++)
@@ -107,12 +107,14 @@ boolean Adafruit_TSL2591::begin(TwoWire *theWire) {
 /**************************************************************************/
 /*!
     @brief  Setups the I2C interface and hardware, identifies if chip is found
+    @param  addr The I2C adress of the sensor (Default 0x29)
     @returns True if a TSL2591 is found, false on any failure
 */
 /**************************************************************************/
-boolean Adafruit_TSL2591::begin() {
+boolean Adafruit_TSL2591::begin(uint8_t addr) {
 
   begin(&Wire);
+  _addr = addr;
 
   return true;
 }
