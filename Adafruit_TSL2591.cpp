@@ -67,13 +67,13 @@ Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID) {
 
 /**************************************************************************/
 /*!
-    @brief  Setups the I2C interface and hardware, identifies if chip is found
-    @param theWire a reference to TwoWire instance
-    @param  addr The I2C adress of the sensor (Default 0x29)
+    @brief   Setups the I2C interface and hardware, identifies if chip is found
+    @param   addr The I2C adress of the sensor (Default 0x29)
+    @param   theWire a reference to TwoWire instance
     @returns True if a TSL2591 is found, false on any failure
 */
 /**************************************************************************/
-boolean Adafruit_TSL2591::begin(TwoWire *theWire, uint8_t addr) {
+boolean Adafruit_TSL2591::begin(uint8_t addr, TwoWire *theWire) {
   _i2c = theWire;
   _i2c->begin();
   _addr = addr;
@@ -106,8 +106,8 @@ boolean Adafruit_TSL2591::begin(TwoWire *theWire, uint8_t addr) {
 }
 /**************************************************************************/
 /*!
-    @brief  Setups the I2C interface and hardware, identifies if chip is found
-    @param  addr The I2C adress of the sensor (Default 0x29)
+    @brief   Setups the I2C interface and hardware, identifies if chip is found
+    @param   addr The I2C adress of the sensor (Default 0x29)
     @returns True if a TSL2591 is found, false on any failure
 */
 /**************************************************************************/
