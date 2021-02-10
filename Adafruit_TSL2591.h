@@ -132,8 +132,8 @@ class Adafruit_TSL2591 : public Adafruit_Sensor {
 public:
   Adafruit_TSL2591(int32_t sensorID = -1);
 
-  boolean begin(TwoWire *theWire);
-  boolean begin();
+  boolean begin(TwoWire *theWire, uint8_t addr = TSL2591_ADDR);
+  boolean begin(uint8_t addr = TSL2591_ADDR);
   void enable(void);
   void disable(void);
 
@@ -167,6 +167,7 @@ private:
   tsl2591IntegrationTime_t _integration;
   tsl2591Gain_t _gain;
   int32_t _sensorID;
+  uint8_t _addr;
 
   boolean _initialized;
 };

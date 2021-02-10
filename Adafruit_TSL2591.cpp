@@ -67,14 +67,16 @@ Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID) {
 
 /**************************************************************************/
 /*!
-    @brief  Setups the I2C interface and hardware, identifies if chip is found
-    @param theWire a reference to TwoWire instance
+    @brief   Setups the I2C interface and hardware, identifies if chip is found
+    @param   theWire a reference to TwoWire instance
+    @param   addr The I2C adress of the sensor (Default 0x29)
     @returns True if a TSL2591 is found, false on any failure
 */
 /**************************************************************************/
-boolean Adafruit_TSL2591::begin(TwoWire *theWire) {
+boolean Adafruit_TSL2591::begin(TwoWire *theWire, uint8_t addr) {
   _i2c = theWire;
   _i2c->begin();
+  _addr = addr;
 
   /*
   for (uint8_t i=0; i<0x20; i++)
@@ -104,13 +106,15 @@ boolean Adafruit_TSL2591::begin(TwoWire *theWire) {
 }
 /**************************************************************************/
 /*!
-    @brief  Setups the I2C interface and hardware, identifies if chip is found
+    @brief   Setups the I2C interface and hardware, identifies if chip is found
+    @param   addr The I2C adress of the sensor (Default 0x29)
     @returns True if a TSL2591 is found, false on any failure
 */
 /**************************************************************************/
-boolean Adafruit_TSL2591::begin() {
+boolean Adafruit_TSL2591::begin(uint8_t addr) {
 
   begin(&Wire);
+  _addr = addr;
 
   return true;
 }
@@ -480,11 +484,11 @@ void Adafruit_TSL2591::getSensor(sensor_t *sensor) {
 uint8_t Adafruit_TSL2591::read8(uint8_t reg) {
   uint8_t x;
 
-  _i2c->beginTransmission(TSL2591_ADDR);
+  _i2c->beginTransmission(_addr);
   _i2c->write(reg);
   _i2c->endTransmission();
 
-  _i2c->requestFrom(TSL2591_ADDR, 1);
+  _i2c->requestFrom(_addr, 1);
   x = _i2c->read();
 
   return x;
@@ -494,11 +498,11 @@ uint16_t Adafruit_TSL2591::read16(uint8_t reg) {
   uint16_t x;
   uint16_t t;
 
-  _i2c->beginTransmission(TSL2591_ADDR);
+  _i2c->beginTransmission(_addr);
   _i2c->write(reg);
   _i2c->endTransmission();
 
-  _i2c->requestFrom(TSL2591_ADDR, 2);
+  _i2c->requestFrom(_addr, 2);
   t = _i2c->read();
   x = _i2c->read();
 
@@ -508,14 +512,14 @@ uint16_t Adafruit_TSL2591::read16(uint8_t reg) {
 }
 
 void Adafruit_TSL2591::write8(uint8_t reg, uint8_t value) {
-  _i2c->beginTransmission(TSL2591_ADDR);
+  _i2c->beginTransmission(_addr);
   _i2c->write(reg);
   _i2c->write(value);
   _i2c->endTransmission();
 }
 
 void Adafruit_TSL2591::write8(uint8_t reg) {
-  _i2c->beginTransmission(TSL2591_ADDR);
+  _i2c->beginTransmission(_addr);
   _i2c->write(reg);
   _i2c->endTransmission();
 }
