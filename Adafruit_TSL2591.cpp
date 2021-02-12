@@ -227,6 +227,12 @@ float Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1) {
     return -1;
   }
 
+  // Check if IR < FULL and IR != 0 to prevent divisions by zero or negative
+  // lux values
+  if ((ch0 == 0) || (ch0 < ch1)) {
+    return 0;
+  }
+
   // Note: This algorithm is based on preliminary coefficients
   // provided by AMS and may need to be updated in the future
 
