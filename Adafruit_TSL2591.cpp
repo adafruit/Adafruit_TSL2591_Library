@@ -344,7 +344,13 @@ uint16_t Adafruit_TSL2591::getLuminosity(uint8_t channel) {
     return (x >> 16);
   } else if (channel == TSL2591_VISIBLE) {
     // Reads all and subtracts out just the visible!
-    return ((x & 0xFFFF) - (x >> 16));
+    // Checks, if the CH1 value is smaller than the CH2 value in order to
+    // prevent an uint overflow
+    if ((x >> 16) < (x & 0xFFFF)) {
+      return ((x & 0xFFFF) - (x >> 16));
+    } else {
+      return 0;
+    }    
   }
 
   // unknown channel!
