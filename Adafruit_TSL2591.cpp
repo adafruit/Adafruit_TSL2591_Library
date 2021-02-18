@@ -356,7 +356,7 @@ uint16_t Adafruit_TSL2591::getLuminosity(uint8_t channel) {
       return ((x & 0xFFFF) - (x >> 16));
     } else {
       return 0;
-    }    
+    }
   }
 
   // unknown channel!
