@@ -111,13 +111,7 @@ boolean Adafruit_TSL2591::begin(TwoWire *theWire, uint8_t addr) {
     @returns True if a TSL2591 is found, false on any failure
 */
 /**************************************************************************/
-boolean Adafruit_TSL2591::begin(uint8_t addr) {
-
-  begin(&Wire);
-  _addr = addr;
-
-  return true;
-}
+boolean Adafruit_TSL2591::begin(uint8_t addr) { return begin(&Wire, addr); }
 
 /**************************************************************************/
 /*!
