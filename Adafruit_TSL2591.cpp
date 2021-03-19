@@ -112,11 +112,7 @@ boolean Adafruit_TSL2591::begin(TwoWire *theWire, uint8_t addr) {
 */
 /**************************************************************************/
 boolean Adafruit_TSL2591::begin(uint8_t addr) {
-
-  begin(&Wire);
-  _addr = addr;
-
-  return true;
+  return begin(&Wire, addr);
 }
 
 /**************************************************************************/
