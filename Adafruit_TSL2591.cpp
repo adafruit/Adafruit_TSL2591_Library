@@ -234,7 +234,7 @@ float Adafruit_TSL2591::calculateLuxf(uint16_t ch0, uint16_t ch1)
   // cpl = (ATIME * AGAIN) / DF
   cpl = (atime * again) / TSL2591_LUX_DF;
 
-  lux1 =  (((float) ch0 - (float) ch1)) * (1.0F - ((float) ch1 / (float) ch0)) / cpl;//( (float)ch0 - (TSL2591_LUX_COEFB * (float)ch1) ) / cpl;
+  lux1 =  (((float) ch0 - (float) ch1)) * (1.0F - ((float) ch1 / (float)((ch0 != 0) ? ch0 : 1.0F))) / cpl;//( (float)ch0 - (TSL2591_LUX_COEFB * (float)ch1) ) / cpl;
   lux2 = ((TSL2591_LUX_COEFC * (float) ch0) - (TSL2591_LUX_COEFD * (float) ch1)) / cpl;
   lux = lux1 > lux2 ? lux1 : lux2;
 
