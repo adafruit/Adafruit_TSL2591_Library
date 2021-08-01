@@ -19,9 +19,9 @@
 #ifndef _TSL2591_H_
 #define _TSL2591_H_
 
+#include <Adafruit_I2CDevice.h>
 #include <Adafruit_Sensor.h>
 #include <Arduino.h>
-#include <Wire.h>
 
 #define TSL2591_VISIBLE (2)      ///< (channel 0) - (channel 1)
 #define TSL2591_INFRARED (1)     ///< channel 1
@@ -157,7 +157,7 @@ public:
   void getSensor(sensor_t *);
 
 private:
-  TwoWire *_i2c;
+  Adafruit_I2CDevice *i2c_dev = NULL; ///< Pointer to I2C bus interface
 
   void write8(uint8_t r);
   void write8(uint8_t r, uint8_t v);
