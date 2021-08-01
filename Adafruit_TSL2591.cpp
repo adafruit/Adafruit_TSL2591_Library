@@ -74,9 +74,9 @@ Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID) {
 */
 /**************************************************************************/
 boolean Adafruit_TSL2591::begin(TwoWire *theWire, uint8_t addr) {
-  _i2c = theWire;
-  _i2c->begin();
-  _addr = addr;
+  i2c_dev = new Adafruit_I2CDevice(addr, theWire);
+  if (!i2c_dev->begin())
+    return false;
 
   /*
   for (uint8_t i=0; i<0x20; i++)
@@ -476,44 +476,28 @@ void Adafruit_TSL2591::getSensor(sensor_t *sensor) {
 /*******************************************************/
 
 uint8_t Adafruit_TSL2591::read8(uint8_t reg) {
-  uint8_t x;
-
-  _i2c->beginTransmission(_addr);
-  _i2c->write(reg);
-  _i2c->endTransmission();
-
-  _i2c->requestFrom(_addr, 1);
-  x = _i2c->read();
-
-  return x;
+  uint8_t buffer[1];
+  buffer[0] = reg;
+  i2c_dev->write_then_read(buffer, 1, buffer, 1);
+  return buffer[0];
 }
 
 uint16_t Adafruit_TSL2591::read16(uint8_t reg) {
-  uint16_t x;
-  uint16_t t;
-
-  _i2c->beginTransmission(_addr);
-  _i2c->write(reg);
-  _i2c->endTransmission();
-
-  _i2c->requestFrom(_addr, 2);
-  t = _i2c->read();
-  x = _i2c->read();
-
-  x <<= 8;
-  x |= t;
-  return x;
+  uint8_t buffer[2];
+  buffer[0] = reg;
+  i2c_dev->write_then_read(buffer, 1, buffer, 2);
+  return uint16_t(buffer[1]) << 8 | uint16_t(buffer[0]);
 }
 
 void Adafruit_TSL2591::write8(uint8_t reg, uint8_t value) {
-  _i2c->beginTransmission(_addr);
-  _i2c->write(reg);
-  _i2c->write(value);
-  _i2c->endTransmission();
+  uint8_t buffer[2];
+  buffer[0] = reg;
+  buffer[1] = value;
+  i2c_dev->write(buffer, 2);
 }
 
 void Adafruit_TSL2591::write8(uint8_t reg) {
-  _i2c->beginTransmission(_addr);
-  _i2c->write(reg);
-  _i2c->endTransmission();
+  uint8_t buffer[1];
+  buffer[0] = reg;
+  i2c_dev->write(buffer, 1);
 }
