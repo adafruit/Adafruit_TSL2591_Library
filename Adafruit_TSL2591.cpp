@@ -65,6 +65,11 @@ Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID) {
   // yet
 }
 
+Adafruit_TSL2591::~Adafruit_TSL2591() {
+  if (i2c_dev)
+    delete i2c_dev;
+}
+
 /**************************************************************************/
 /*!
     @brief   Setups the I2C interface and hardware, identifies if chip is found
@@ -74,6 +79,8 @@ Adafruit_TSL2591::Adafruit_TSL2591(int32_t sensorID) {
 */
 /**************************************************************************/
 boolean Adafruit_TSL2591::begin(TwoWire *theWire, uint8_t addr) {
+  if (i2c_dev)
+    delete i2c_dev;
   i2c_dev = new Adafruit_I2CDevice(addr, theWire);
   if (!i2c_dev->begin())
     return false;
