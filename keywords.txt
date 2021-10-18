@@ -1,0 +1,37 @@
+#####################################
+# Syntax Coloring Map For Adafruit_TSL2591_Library
+#####################################
+
+#####################################
+# Datatypes (KEYWORD1)
+#####################################
+
+Adafruit_TSL2591	KEYWORD1
+
+#####################################
+# Methods and Functions (KEYWORD2)
+#####################################
+
+begin	KEYWORD2
+enable	KEYWORD2
+disable	KEYWORD2
+calculateLux	KEYWORD2
+setGain	KEYWORD2
+setTiming	KEYWORD2
+getLuminosity	KEYWORD2
+getFullLuminosity	KEYWORD2
+getTiming	KEYWORD2
+getGain	KEYWORD2
+clearInterrupt	KEYWORD2
+registerInterrupt	KEYWORD2
+getStatus	KEYWORD2
+getEvent	KEYWORD2
+getSensor	KEYWORD2
+
+#####################################
+# Constants (LITERAL1)
+#####################################
+
+tsl2591Gain_t	LITERAL1
+tsl2591Persist_t	LITERAL1
+tsl2591IntegrationTime_t	LITERAL1
