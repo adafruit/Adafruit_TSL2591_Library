@@ -227,6 +227,12 @@ float Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1) {
     return -1;
   }
 
+  // Check if IR < FULL and IR != 0 to prevent divisions by zero or negative
+  // lux values
+  if ((ch0 == 0) || (ch0 < ch1)) {
+    return 0;
+  }
+
   // Note: This algorithm is based on preliminary coefficients
   // provided by AMS and may need to be updated in the future
 
@@ -344,7 +350,13 @@ uint16_t Adafruit_TSL2591::getLuminosity(uint8_t channel) {
     return (x >> 16);
   } else if (channel == TSL2591_VISIBLE) {
     // Reads all and subtracts out just the visible!
-    return ((x & 0xFFFF) - (x >> 16));
+    // Checks, if the CH1 value is smaller than the CH2 value in order to
+    // prevent an uint overflow
+    if ((x >> 16) < (x & 0xFFFF)) {
+      return ((x & 0xFFFF) - (x >> 16));
+    } else {
+      return 0;
+    }
   }
 
   // unknown channel!
